@@ -18,13 +18,14 @@ int main()
     printf("Magnitude of Vs(%f, %f, %f) = %f\n", Vs.GetX(), Vs.GetY(), Vs.GetZ(), Vs.Magnitude());
     printf("Magnitude of Vh(%f, %f, %f) = %f\n", Vh->GetX(), Vh->GetY(), Vh->GetZ(), Vh->Magnitude());
 
-    Vector  ZeroVector(0, 0, 0);
+    Vector ZeroVector(0, 0, 0);
 
     printf("ZeroVector(%f, %f, %f) \n", 
         ZeroVector.GetX(), 
         ZeroVector.GetY(), 
         ZeroVector.GetZ());
 
-
+    Matrix m;
+    Quaternion q;
     return 0;
 }
