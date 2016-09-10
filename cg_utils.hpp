@@ -137,6 +137,38 @@ namespace CGutils {
     };
 
 
+    // Matrix class for 3D tranformations
+    class Matrix
+    {
+    public:
+        Matrix() { Identity(); }
+
+        void        Identity();
+        void        View(const Vector& _vViewNormal, const Vector& _vViewUp, const Vector& _vViewLocation);
+        void        Orient(const Vector& _vObjectDirection, const Vector& _vObjectUp, const Vector& _vObjectLocation);
+        static void Compose(Matrix* _dest, const Matrix& _left, const Matrix& _right);
+        
+        Vector      operator*(const Vector& _v) const;
+        Matrix      operator*(const Matrix& _m) const;
+        Matrix&     operator*=(float _f);
+        Matrix&     operator+=(const Matrix& _m);
+        
+        void        Invert();
+        void        InvertRotation();
+        void        NormalizeRotation();
+        void        Apply(Vector* _result, const Vector& _v) const;
+        void        ApplyRotation(Vector* _result, const Vector& _v) const;
+        void        ApplyInverse(Vector* _result, const Vector& _v) const;
+        void        ApplyInverseRotation(Vector* _result, const Vector& _v) const;
+        void        Translate(const Vector& _v);
+        void        SetOrientation(const Quaternion& _q);
+        Quaternion  GetOrientation() const;
+        
+        void        SetColumn(int _column, const Vector& _v) { m[_column] = _v; }
+        const Vector&   GetColumn(int _column) const { return m[_column]; }
+    private:
+        Vector  m[4];
+    };
 
 
 

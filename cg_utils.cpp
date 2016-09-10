@@ -123,9 +123,7 @@ Vector  ZAxis(0, 0, 1);
 /*
 * Quaternions implementation
 */
-//
-// class Quaternion
-//
+
 
 
 Quaternion::Quaternion(const Vector& _axis, float _angle /* in radians */)
@@ -218,6 +216,268 @@ Quaternion  Quaternion::Lerp(const Quaternion& _q, float _f) const
 }
 
 
+
+/*
+* Matrix implementation
+*/
+
+// Sets *this to be an identity Matrix.
+void Matrix::Identity()
+{
+    SetColumn(0, XAxis);
+    SetColumn(1, YAxis);
+    SetColumn(2, ZAxis);
+    SetColumn(3, ZeroVector);
+}
+
+
+// Turns *this into a view Matrix, given the direction the camera is
+// looking (ViewNormal) and the camera's up vector (ViewUp), and its
+// location (ViewLocation) (all vectors in world-coordinates).  The
+// resulting Matrix will transform points from world coordinates to view
+// coordinates, which is a right-handed system with the x axis pointing
+// left, the y axis pointing up, and the z axis pointing into the scene.
+void Matrix::View(const Vector& _vViewNormal, const Vector& _vViewUp, const Vector& _vViewLocation)
+{
+    Vector _vViewX = _vViewUp.Cross(_vViewNormal);
+
+    // Construct the view-to-world Matrix.
+    Orient(_vViewX, _vViewUp, _vViewLocation);
+
+    // Turn it around, to make it world-to-view.
+    Invert();
+}
+
+
+// Turns *this into a transformation Matrix, that transforms vectors
+// from object coordinates to world coordinates, given the object's Direction, Up,
+// and Location in world coordinates.
+void Matrix::Orient(const Vector& _vDirection, const Vector& _vUp, const Vector& _vLocation)
+{
+    Vector vZAxis = _vDirection.Cross(_vUp);
+
+    SetColumn(0, _vDirection);
+    SetColumn(1, _vUp);
+    SetColumn(2, vZAxis);
+    SetColumn(3, _vLocation);
+}
+
+
+// Applies *this to the given vector, and returns the transformed vector.
+Vector Matrix::operator*(const Vector& _v) const
+{
+    Vector result;
+    Apply(&result, _v);
+    return result;
+}
+
+
+// Composes the two matrices, returns the product.  Creates a temporary
+// for the return value.
+Matrix Matrix::operator*(const Matrix& _a) const
+{
+    Matrix result;
+    Compose(&result, *this, _a);
+
+    return result;
+}
+
+
+// Multiplies left * right, and puts the result in *dest.
+void Matrix::Compose(Matrix* _dest, const Matrix& _left, const Matrix& _right)
+{
+    _left.ApplyRotation(&const_cast<Vector&>(_dest->GetColumn(0)), _right.GetColumn(0));
+    _left.ApplyRotation(&const_cast<Vector&>(_dest->GetColumn(1)), _right.GetColumn(1));
+    _left.ApplyRotation(&const_cast<Vector&>(_dest->GetColumn(2)), _right.GetColumn(2));
+    _left.Apply(&const_cast<Vector&>(_dest->GetColumn(3)), _right.GetColumn(3));
+}
+
+
+// Scalar multiply of a Matrix.
+Matrix& Matrix::operator*=(float _f)
+{
+    int i;
+    for (i = 0; i < 4; i++) m[i] *= _f;
+    return *this;
+}
+
+
+// Memberwise Matrix addition.
+Matrix& Matrix::operator+=(const Matrix& _mat)
+{
+    int i;
+    for (i = 0; i < 4; i++) m[i] += _mat.m[i];
+    return *this;
+}
+
+
+// Inverts *this.  Uses transpose property of rotation matrices.
+void Matrix::Invert()
+{
+    InvertRotation();
+    // Compute the translation part of the inverted Matrix, by applying
+    // the inverse rotation to the original translation.
+    Vector  vTransPrime;
+    ApplyRotation(&vTransPrime, GetColumn(3));
+    SetColumn(3, -vTransPrime);
+}
+
+
+// Inverts the rotation part of *this.  Ignores the translation.
+// Uses the transpose property of rotation matrices.
+void Matrix::InvertRotation()
+{
+    float   f;
+
+    // Swap elements across the diagonal.
+    f = m[1].Get(0);
+    m[1].Set(0, m[0].Get(1));
+    m[0].Set(1, f);
+
+    f = m[2].Get(0);
+    m[2].Set(0, m[0].Get(2));
+    m[0].Set(2, f);
+
+    f = m[2].Get(1);
+    m[2].Set(1, m[1].Get(2));
+    m[1].Set(2, f);
+}
+
+
+// Normalizes the rotation part of the Matrix.
+void Matrix::NormalizeRotation()
+{
+    m[0].Normalize();
+    m[1] = m[2].Cross(m[0]);
+    m[1].Normalize();
+    m[2] = m[0].Cross(m[1]);
+}
+
+
+// Applies v to *this, and puts the transformed result in *result.
+void Matrix::Apply(Vector* _result, const Vector& _v) const
+{
+    // Do the rotation.
+    ApplyRotation(_result, _v);
+    // Do the translation.
+    *_result += m[3];
+}
+
+
+// Applies the rotation portion of *this, and puts the transformed result in *result.
+void Matrix::ApplyRotation(Vector* _result, const Vector& _v) const
+{
+    _result->Set(0, m[0].Get(0) * _v.Get(0) + m[1].Get(0) * _v.Get(1) + m[2].Get(0) * _v.Get(2));
+    _result->Set(1, m[0].Get(1) * _v.Get(0) + m[1].Get(1) * _v.Get(1) + m[2].Get(1) * _v.Get(2));
+    _result->Set(2, m[0].Get(2) * _v.Get(0) + m[1].Get(2) * _v.Get(1) + m[2].Get(2) * _v.Get(2));
+}
+
+
+// Applies v to the inverse of *this, and puts the transformed result in *result.
+void Matrix::ApplyInverse(Vector* _result, const Vector& _v) const
+{
+    ApplyInverseRotation(_result, _v - m[3]);
+}
+
+
+// Applies v to the inverse rotation part of *this, and puts the result in *result.
+void Matrix::ApplyInverseRotation(Vector* _result, const Vector& _v) const
+{
+    _result->Set(0, m[0] * _v);
+    _result->Set(1, m[1] * _v);
+    _result->Set(2, m[2] * _v);
+}
+
+
+// Composes a translation on the right of *this.
+void Matrix::Translate(const Vector& _v)
+{
+    Vector newtrans;
+    Apply(&newtrans, _v);
+    SetColumn(3, newtrans);
+}
+
+
+// Sets the rotation part of the Matrix to the values which correspond to the given
+// quaternion orientation.
+void Matrix::SetOrientation(const Quaternion& _q)
+{
+    float S = _q.GetS();
+    const Vector& v = _q.GetV();
+    
+    m[0].Set(0, 1 - 2 * v.GetY() * v.GetY() - 2 * v.GetZ() * v.GetZ());
+    m[0].Set(1, 2 * v.GetX() * v.GetY() + 2 * S * v.GetZ());
+    m[0].Set(2, 2 * v.GetX() * v.GetZ() - 2 * S * v.GetY());
+
+    m[1].Set(0, 2 * v.GetX() * v.GetY() - 2 * S * v.GetZ());
+    m[1].Set(1, 1 - 2 * v.GetX() * v.GetX() - 2 * v.GetZ() * v.GetZ());
+    m[1].Set(2, 2 * v.GetY() * v.GetZ() + 2 * S * v.GetX());
+
+    m[2].Set(0, 2 * v.GetX() * v.GetZ() + 2 * S * v.GetY());
+    m[2].Set(1, 2 * v.GetY() * v.GetZ() - 2 * S * v.GetX());
+    m[2].Set(2, 1 - 2 * v.GetX() * v.GetX() - 2 * v.GetY() * v.GetY());
+}
+
+
+// Converts the rotation part of *this into a quaternion, and returns it.
+Quaternion Matrix::GetOrientation() const
+{
+    // Code adapted from Baraff, "Rigid Body Simulation", from SIGGRAPH 95 course notes for Physically Based Modeling.
+    Quaternion  q;
+    float   tr, s;
+
+    tr = m[0].Get(0) + m[1].Get(1) + m[2].Get(2);   // trace
+
+    if (tr >= 0) {
+        s = sqrt(tr + 1);
+        q.SetS(0.5 * s);
+        s = 0.5 / s;
+        q.SetV(Vector(m[1].Get(2) - m[2].Get(1), m[2].Get(0) - m[0].Get(2), m[0].Get(1) - m[1].Get(0)) * s);
+    } else {
+        int i = 0;
+
+        if (m[1].Get(1) > m[0].Get(0)) {
+            i = 1;
+        }
+        if (m[2].Get(2) > m[i].Get(i)) {
+            i = 2;
+        }
+
+        float   qr, qi, qj, qk;
+        switch (i) {
+        case 0:
+            s = sqrt((m[0].Get(0) - (m[1].Get(1) + m[2].Get(2))) + 1);
+            qi = 0.5 * s;
+            s = 0.5 / s;
+            qj = (m[1].Get(0) + m[0].Get(1)) * s;
+            qk = (m[0].Get(2) + m[2].Get(0)) * s;
+            qr = (m[1].Get(2) - m[2].Get(1)) * s;
+            break;
+
+        case 1:
+            s = sqrt((m[1].Get(1) - (m[2].Get(2) + m[0].Get(0))) + 1);
+            qj = 0.5 * s;
+            s = 0.5 / s;
+            qk = (m[2].Get(1) + m[1].Get(2)) * s;
+            qi = (m[1].Get(0) + m[0].Get(1)) * s;
+            qr = (m[2].Get(0) - m[0].Get(2)) * s;
+            break;
+
+        case 2:
+            s = sqrt((m[2].Get(2) - (m[0].Get(0) + m[1].Get(1))) + 1);
+            qk = 0.5 * s;
+            s = 0.5 / s;
+            qi = (m[0].Get(2) + m[2].Get(0)) * s;
+            qj = (m[2].Get(1) + m[1].Get(2)) * s;
+            qr = (m[0].Get(1) - m[1].Get(0)) * s;
+            break;
+        }
+        q.SetS(qr);
+        q.SetV(Vector(qi, qj, qk));
+    }
+
+    return q;
+}
 
 
 
