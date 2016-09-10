@@ -94,11 +94,56 @@ namespace CGutils {
     }
 
 #endif // INLINE_VECTOR
+}
 
-    extern Vector ZeroVector;   // (0, 0, 0)
-    extern Vector XAxis;        // (1, 0, 0)
-    extern Vector YAxis;        // (0, 1, 0)
-    extern Vector ZAxis;        // (0, 0, 1)
+    extern CGutils::Vector ZeroVector;   // (0, 0, 0)
+    extern CGutils::Vector XAxis;        // (1, 0, 0)
+    extern CGutils::Vector YAxis;        // (0, 1, 0)
+    extern CGutils::Vector ZAxis;        // (0, 0, 1)
+
+namespace CGutils {
+    // Quaternion to represent rotations
+    class Quaternion {
+    public:
+        // Default constriction 
+        Quaternion() : scalar(1), vector(ZeroVector) {}
+        // Copy constructor
+        Quaternion(const Quaternion& _q) : scalar(_q.scalar), vector(_q.vector) {}
+        // Implicit definition of members
+        Quaternion(float _s, const Vector& _v) : scalar(_s), vector(_v) {}
+        // Construct a rotation
+        Quaternion(const Vector& _axis, float _angle); 
+
+        float   GetS() const { return scalar; } // get the scalar component
+        const Vector&   GetV() const { return vector; } // get the vector component - improve
+        void    SetS(float _s) { scalar = _s; } //set scalar component
+        void    SetV(const Vector& _v) { vector = _v; } // set vector component
+
+        float   Get(int _i) const { if (_i==0) return GetS(); else return vector.Get(_i-1); }
+        void    Set(int _i, float _f) { if (_i==0) scalar = _f; else vector.Set(_i-1, _f); }
+
+        Quaternion  operator*(const Quaternion& _q) const;
+        Quaternion& operator*=(float _f) { scalar *= _f; vector *= _f; return *this; }
+        Quaternion& operator+=(const Quaternion& _q) { scalar += _q.scalar; vector += _q.vector; return *this; }
+        Quaternion& operator=(const Quaternion& _q) { scalar = _q.scalar; vector = _q.vector; return *this; }
+        Quaternion& Normalize();
+        Quaternion& operator*=(const Quaternion& q);
+        void    ApplyRotation(Vector* _result, const Vector& _v);
+        
+        Quaternion  Lerp(const Quaternion& _q, float _f) const;
+    private:
+        float   scalar;
+        Vector  vector;
+    };
+
+
+
+
+
+
+    Vector Rotate(float _angle, const Vector& _axis, const Vector& _point);
+
+
 }
 
 #endif

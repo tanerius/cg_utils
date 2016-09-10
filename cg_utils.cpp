@@ -116,3 +116,120 @@ Vector  XAxis(1, 0, 0);
 Vector  YAxis(0, 1, 0);
 Vector  ZAxis(0, 0, 1);
 
+
+
+
+
+/*
+* Quaternions implementation
+*/
+//
+// class Quaternion
+//
+
+
+Quaternion::Quaternion(const Vector& _axis, float _angle /* in radians */)
+{
+    scalar = cos(_angle / 2);
+    vector = _axis;
+    vector *= sin(_angle / 2);
+}
+
+
+Quaternion  Quaternion::operator*(const Quaternion& _q) const
+{
+    return Quaternion(
+        scalar * _q.scalar - vector * _q.vector, 
+        _q.vector * scalar + vector * _q.scalar + vector.Cross(_q.vector)
+        );
+}
+
+// Ensures that the Quaternion has magnitude 1.
+Quaternion& Quaternion::Normalize()
+{
+    float   mag = sqrt(scalar * scalar + vector * vector);
+    if (mag > 0.0000001) {
+        float   inv = 1.0 / mag;
+        scalar *= inv;
+        vector *= inv;
+    } else {
+        // No rotation! Bad quaternion
+        scalar = 1;
+        vector = ZeroVector;
+    }
+
+    return *this;
+}
+
+
+Quaternion& Quaternion::operator*=(const Quaternion& _q)
+{
+    *this = *this * _q; 
+
+    return *this;
+}
+
+
+// Rotates the given vector v by the rotation represented by this Quaternion.
+// Stores the result in the given _result vector.
+void    Quaternion::ApplyRotation(Vector* _result, const Vector& _v)
+{
+    Quaternion  q(*this * Quaternion(0, _v) * Quaternion(scalar, -vector));    
+
+    *_result = q.vector;
+}
+
+
+// Does a spherical linear interpolation between *this and q, using f as
+// the blend factor.  f == 0 --> result == *this, f == 1 --> result == q.
+Quaternion  Quaternion::Lerp(const Quaternion& _q, float _f) const
+{
+    Quaternion result;
+
+    float f0, f1;
+
+    float cos_omega = vector * _q.vector + scalar * _q.scalar;
+    Quaternion  qtemp(_q);
+
+    // Adjust signs if necessary.
+    if (cos_omega < 0) {
+        cos_omega = -cos_omega;
+        qtemp.vector = -qtemp.vector;
+        qtemp.scalar = -qtemp.scalar;
+    }
+
+    if (cos_omega < 0.99) {
+        // Do the spherical interp.
+        float   omega = acos(cos_omega);
+        float   sin_omega = sin(omega);
+        f0 = sin((1 - _f) * omega) / sin_omega;
+        f1 = sin(_f * omega) / sin_omega;
+    } else {
+        // Quaternions are close; just do straight lerp and avoid division by near-zero.
+        f0 = 1 - _f;
+        f1 = _f;
+    }
+    
+    result.scalar = scalar * f0 + qtemp.scalar * f1;
+    result.vector = vector * f0 + qtemp.vector * f1;
+    result.Normalize();
+
+    return result;
+}
+
+
+
+
+
+
+// Rotates the given point through the given angle (in radians) about the given
+// axis.
+Vector Rotate(float _angle, const Vector& _axis, const Vector& _point)
+{
+    Quaternion q(cos(_angle/2), _axis * sin(_angle/2));
+    Vector result;
+    q.ApplyRotation(&result, _point);
+
+    return result;
+}
+
