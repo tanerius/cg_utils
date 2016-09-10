@@ -1,7 +1,7 @@
 # Declare a variable for the compliler which we are going to use
 CXX=g++
 # Declare another variable with the flags which we are going to use
-CXXFLAGS=-g -Wall -std=c++11  -DDEBUG
+CXXFLAGS=-g -Wall -std=c++11 
 
 OBJDIR=build
 

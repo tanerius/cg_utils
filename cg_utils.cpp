@@ -49,7 +49,7 @@ Vector  Vector::operator*(float f) const
 
 
 // Cross product.
-Vector  Vector::cross(const Vector& v) const
+Vector  Vector::Cross(const Vector& v) const
 {
     Vector  result;
     result.x[0] = x[1] * v.x[2] - x[2] * v.x[1];
@@ -60,7 +60,7 @@ Vector  Vector::cross(const Vector& v) const
 
 
 // Scales the Vector to unit length.  Preserves its direction.
-Vector& Vector::normalize()
+Vector& Vector::Normalize()
 {
     float   f = Magnitude();
     if (f < 0.0000001) {

@@ -38,9 +38,9 @@ namespace CGutils {
         float   operator*(const Vector& _v) const;
         Vector  operator*(float _f) const;
         Vector  operator/(float _f) const { return this->operator*(1.0 / _f); }
-        Vector  cross(const Vector& _v) const;
+        Vector  Cross(const Vector& _v) const;
 
-        Vector& normalize();
+        Vector& Normalize();
         Vector& operator=(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; return *this; }
         Vector& operator+=(const Vector& _v);
         Vector& operator-=(const Vector& _v);
