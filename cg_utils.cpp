@@ -92,12 +92,12 @@ float   Vector::Magnitude() const
 
 
 // Multiply a vectors components by another given vector
-Vector& Vector::MultiplyComponents(Vector& _v)
+Vector Vector::MultiplyComponents(Vector& _v)
 {
-    x[0] *= _v.GetX();
-    x[1] *= _v.GetY();
-    x[2] *= _v.GetZ();
-    return *this;
+    Vector ret = Vector(x[0] * _v.GetX(),
+        x[1] * _v.GetY(),
+        x[2] * _v.GetZ());
+    return ret;
 }
 
 
@@ -559,3 +559,59 @@ Vector*     Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
     );
 }
 
+
+// return the smallest radius of this ellipse
+float       Ellipse::MinimumRadius()
+{
+    return std::fminf(
+        radii[RadiusType::R]->GetX(), 
+        std::fminf(
+            radii[RadiusType::R]->GetY(), 
+            radii[RadiusType::R]->GetZ()));
+}
+
+
+// Return the greatest radius of this ellipse
+float       Ellipse::MaximumRadius()
+{
+    return std::fmaxf(
+        radii[RadiusType::R]->GetX(), 
+        std::fmaxf(
+            radii[RadiusType::R]->GetY(), 
+            radii[RadiusType::R]->GetZ()));
+}
+
+
+Vector*     Ellipse::ToVector(Geodetic2D& _geodetic)
+{
+    Geodetic3D* gd = new Geodetic3D(_geodetic.Latitude(), _geodetic.Longitude(), 0.0f );
+    Vector* v = ToVector(*gd);
+    delete gd;
+    return v;
+}
+
+
+// Convertor from Geodetic coordinate system to cartesian coordinates
+Vector*     Ellipse::ToVector(Geodetic3D& _geodetic)
+{
+    Vector* n = GeodeticSurfNormal(_geodetic);
+    Vector k = radii[RadiusType::R_SQUARED]->MultiplyComponents(*n);
+    double gamma = std::sqrt(
+        (k.GetX() * n->GetX()) +
+        (k.GetY() * n->GetY()) +
+        (k.GetZ() * n->GetZ())
+        );
+ 
+    Vector rSurface = Vector(k / gamma);
+    Vector sumV = rSurface + ((*n) * _geodetic.Height());
+    delete n;
+
+    return new Vector (sumV) ;
+}
+
+
+Geodetic3D* Ellipse::ToGeodetic3D(Vector& _positions)
+{
+    return new Geodetic3D(); 
+    // TODO: implement
+}

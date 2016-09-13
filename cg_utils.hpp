@@ -41,7 +41,7 @@ namespace CGutils {
         Vector  operator/(float _f) const { return this->operator*(1.0 / _f); }
         Vector  Cross(const Vector& _v) const;
 
-        Vector& MultiplyComponents(Vector& _v);
+        Vector MultiplyComponents(Vector& _v);
         Vector& Normalize();
 
         Vector& operator=(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; return *this; }
@@ -264,9 +264,17 @@ namespace CGutils {
         static Vector*  GeocentricSurfNormal(Vector& _vertexPosition) { return new Vector( _vertexPosition.Normalize() ); }
         Vector*         GeodesicSurfNormal(Vector& _vertexPosition);
         Vector*         GeodeticSurfNormal(Geodetic3D& _geodetic);
-/*
+        const Vector*   GetR(const RadiusType _rt) { return radii[_rt]; } // get a radius component
+
         float           MinimumRadius();
-        float           MaxinumRadius();
+        float           MaximumRadius();
+
+        // Members to convert Geodetic coordinates to vectors (cartesian coordinates) and vice versa
+        Vector*         ToVector(Geodetic2D& _geodetic);
+        Vector*         ToVector(Geodetic3D& _geodetic);
+        Geodetic3D*     ToGeodetic3D(Vector& _positions);
+
+/*
         float[]         Intersections(Vector origin, Vector direction); 
 */
     private:
