@@ -41,7 +41,9 @@ namespace CGutils {
         Vector  operator/(float _f) const { return this->operator*(1.0 / _f); }
         Vector  Cross(const Vector& _v) const;
 
+        Vector& MultiplyComponents(Vector& _v);
         Vector& Normalize();
+
         Vector& operator=(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; return *this; }
         Vector& operator+=(const Vector& _v);
         Vector& operator-=(const Vector& _v);
@@ -180,9 +182,6 @@ namespace CGutils {
 
     Vector Rotate(float _angle, const Vector& _axis, const Vector& _point);
 
-    // An anumerator for types of radii
-    enum class RadiusType : char { R = 0, R_SQUARED = 1, R_FOURTH = 2, ONE_OVER_R_SQUARED = 3 };
-
 
 
 
@@ -239,34 +238,39 @@ namespace CGutils {
 
 
 
+    // An anumerator for types of radii for ellipses
+    enum RadiusType { 
+        R = 0, 
+        R_SQUARED, 
+        R_FOURTH, 
+        ONE_OVER_R_SQUARED };
+
+
 
     // Ellipse class for representing a mathematical ellipse
     class Ellipse
     {
     public:
-        Ellipse(); 
-        Ellipse(const Vector& _v); 
+        Ellipse() { Ellipse( 1.0f, 1.0f, 1.0f ); } 
+        Ellipse(const Vector& _v) { Ellipse(_v.GetX(), _v.GetY(), _v.GetZ()); }
         Ellipse(const float _x, const float _y, const float _z);
 
         // Functions to get the radii 
-        const float     Get(int _r) { return radius.Get(_r); } 
-        const float     GetX() {return radius.GetX(); }
-        const float     GetY() {return radius.GetY(); }
-        const float     GetZ() {return radius.GetZ(); }
+        const float     Get(int _r) { return radii[0]->Get(_r); } 
+        const float     GetX() {return radii[0]->GetX(); }
+        const float     GetY() {return radii[0]->GetY(); }
+        const float     GetZ() {return radii[0]->GetZ(); }
 
-        static Vector   GeocentricSurfNormal(Vector _vertexPosition) { return _vertexPosition.Normalize(); }
-        Vector          GeodesicSurfNormal(Vector _vertexPosition) {  return radii[0]; }
-
+        static Vector*  GeocentricSurfNormal(Vector& _vertexPosition) { return new Vector( _vertexPosition.Normalize() ); }
+        Vector*         GeodesicSurfNormal(Vector& _vertexPosition);
+        Vector*         GeodeticSurfNormal(Geodetic3D& _geodetic);
+/*
         float           MinimumRadius();
         float           MaxinumRadius();
         float[]         Intersections(Vector origin, Vector direction); 
-
+*/
     private:
-        // 0 -> r
-        // 1 -> r ^ 2
-        // 2 -> r ^ 4
-        // 3 -> 1 / (r ^ 2)
-        Vector *radii[4]; // maybe create an enumerator for these
+        Vector *radii[4];
     };
 
 

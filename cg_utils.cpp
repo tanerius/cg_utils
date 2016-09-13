@@ -91,6 +91,16 @@ float   Vector::Magnitude() const
 }
 
 
+// Multiply a vectors components by another given vector
+Vector& Vector::MultiplyComponents(Vector& _v)
+{
+    x[0] *= _v.GetX();
+    x[1] *= _v.GetY();
+    x[2] *= _v.GetZ();
+    return *this;
+}
+
+
 // Returns the square of the length 
 float   Vector::Sqrmag() const
 {
@@ -506,4 +516,46 @@ bool Geodetic2D::EqualsEpsilon(Geodetic2D& _other, double _epsilon)
 
 
 
+
+
+// Eclipse implementation
+Ellipse::Ellipse(const float _x, const float _y, const float _z)
+{
+    // Ctor
+    radii[RadiusType::R] = new Vector(_x, _y, _z);
+    radii[RadiusType::R_SQUARED] = new Vector(
+        _x * _x, 
+        _y * _y, 
+        _z * _z);
+    radii[RadiusType::R_FOURTH] = new Vector(
+        radii[RadiusType::R_SQUARED]->GetX() * radii[RadiusType::R_SQUARED]->GetX(), 
+        radii[RadiusType::R_SQUARED]->GetY() * radii[RadiusType::R_SQUARED]->GetY(), 
+        radii[RadiusType::R_SQUARED]->GetZ() * radii[RadiusType::R_SQUARED]->GetZ()
+        );
+    radii[RadiusType::ONE_OVER_R_SQUARED] = new Vector(
+        1.0f / radii[RadiusType::R_SQUARED]->GetX(), 
+        1.0f / radii[RadiusType::R_SQUARED]->GetX(), 
+        1.0f / radii[RadiusType::R_SQUARED]->GetX()
+        );
+
+}
+
+Vector*     Ellipse::GeodesicSurfNormal(Vector& _v)
+{
+    // Get a geodesic surface normal
+    return new Vector( _v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])).Normalize() );
+}
+
+
+Vector*     Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
+{
+    // Like the previous method but takes in as parameter a geodetic3D
+    float cosLatitude = std::cos(_geodetic.Latitude());
+
+    return new Vector(
+        cosLatitude * std::cos(_geodetic.Longitude()),
+        cosLatitude * std::sin(_geodetic.Longitude()),
+        std::sin(_geodetic.Latitude())
+    );
+}
 
