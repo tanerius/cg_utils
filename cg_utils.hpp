@@ -1,5 +1,6 @@
 #ifndef CG_UTILS_HPP
 #define CG_UTILS_HPP
+// #include <cmath>
 
 /** 
  *   Conventions:
@@ -97,11 +98,13 @@ namespace CGutils {
 }
 
     extern CGutils::Vector ZeroVector;   // (0, 0, 0)
+    extern CGutils::Vector UnitVector;   // (1, 1, 1)
     extern CGutils::Vector XAxis;        // (1, 0, 0)
     extern CGutils::Vector YAxis;        // (0, 1, 0)
     extern CGutils::Vector ZAxis;        // (0, 0, 1)
 
 namespace CGutils {
+
     // Quaternion to represent rotations
     class Quaternion {
     public:
@@ -135,6 +138,8 @@ namespace CGutils {
         float   scalar;
         Vector  vector;
     };
+
+
 
 
     // Matrix class for 3D tranformations
@@ -175,6 +180,95 @@ namespace CGutils {
 
     Vector Rotate(float _angle, const Vector& _axis, const Vector& _point);
 
+    // An anumerator for types of radii
+    enum class RadiusType : char { R = 0, R_SQUARED = 1, R_FOURTH = 2, ONE_OVER_R_SQUARED = 3 };
+
+
+
+
+    // Geodetic2D class for representing geo coorinates on a sphere
+    class Geodetic2D
+    {
+    public:
+        Geodetic2D() : latitude(0.0f), longitude(0.0f) {}
+        Geodetic2D(float _lat, float _lng) : latitude(_lat), longitude(_lng) {}
+        Geodetic2D(Geodetic2D& _c) : latitude(_c.latitude), longitude(_c.longitude) {}
+
+        const float   Latitude() { return latitude; }
+        const float   Longitude() { return longitude; }
+        bool EqualsEpsilon(Geodetic2D& _other, double _epsilon);
+
+        bool Equals(const Geodetic2D& _other) { return operator==(_other); }
+        inline bool operator==(const Geodetic2D& _c) const {
+            return ( (_c.latitude==latitude) && (_c.longitude==longitude) );
+        }
+        inline bool operator!=(const Geodetic2D& _other) const { return !operator==(_other); }
+
+    private:
+        float latitude;
+        float longitude;
+    };
+
+
+
+
+    // Geodetic3D class for representing geo coorinates on a sphere
+    class Geodetic3D
+    {
+    public:
+        Geodetic3D() : latitude(0.0f), longitude(0.0f), height(0.0f) {}
+        Geodetic3D(float _lat, float _lng, float _h) : latitude(_lat), longitude(_lng), height(_h) {}
+        Geodetic3D(Geodetic3D& _c) : latitude(_c.latitude), longitude(_c.longitude), height(_c.height) {}
+        Geodetic3D(Geodetic2D& _c) : latitude(_c.Latitude()), longitude(_c.Longitude()), height(0.0f) {}
+
+        const float   Latitude() { return latitude; }
+        const float   Longitude() { return longitude; }
+        const float   Height() { return height; }
+
+        bool Equals(const Geodetic3D& _other) { return operator==(_other); }
+        inline bool operator==(const Geodetic3D& _c) const {
+            return ( (_c.latitude==latitude) && (_c.longitude==longitude) && (_c.height==height) );
+        }
+        inline bool operator!=(const Geodetic3D& _other) const { return !operator==(_other); }
+
+    private:
+        float latitude;
+        float longitude;
+        float height;
+    };
+
+
+
+/*
+    // Ellipse class for representing a mathematical ellipse
+    class Ellipse
+    {
+    public:
+        Ellipse(); 
+        Ellipse(const Vector& _v); 
+        Ellipse(const float _x, const float _y, const float _z);
+
+        // Functions to get the radii 
+        const float     Get(int _r) { return radius.Get(_r); } 
+        const float     GetX() {return radius.GetX(); }
+        const float     GetY() {return radius.GetY(); }
+        const float     GetZ() {return radius.GetZ(); }
+
+        static Vector   GeocentricSurfNormal(Vector _vertexPosition) { return _vertexPosition.Normalize(); }
+        Vector          GeodesicSurfNormal(Vector _vertexPosition) {  return radii[0]; }
+
+        float           MinimumRadius();
+        float           MaxinumRadius();
+        float[]         Intersections(Vector origin, Vector direction); 
+
+    private:
+        // 0 -> r
+        // 1 -> r ^ 2
+        // 2 -> r ^ 4
+        // 3 -> 1 / (r ^ 2)
+        Vector *radii[4]; // maybe create an enumerator for these
+    };
+*/
 
 }
 

@@ -111,10 +111,11 @@ bool    Vector::CheckNaN() const
 }
 
 // Define the default basic vectors
-Vector  ZeroVector(0, 0, 0);
-Vector  XAxis(1, 0, 0);
-Vector  YAxis(0, 1, 0);
-Vector  ZAxis(0, 0, 1);
+Vector  ZeroVector(0.0f, 0.0f, 0.0f);
+Vector  UnitVector(1.0f, 1.0f, 1.0f);
+Vector  XAxis(1.0f, 0.0f, 0.0f);
+Vector  YAxis(0.0f, 1.0f, 0.0f);
+Vector  ZAxis(0.0f, 0.0f, 1.0f);
 
 
 
@@ -492,4 +493,17 @@ Vector Rotate(float _angle, const Vector& _axis, const Vector& _point)
 
     return result;
 }
+
+
+
+
+
+bool Geodetic2D::EqualsEpsilon(Geodetic2D& _other, double _epsilon)
+{
+    return ( (std::abs(longitude - _other.longitude) <= _epsilon) && 
+        (std::abs(latitude - _other.latitude) <= _epsilon) );
+}
+
+
+
 
