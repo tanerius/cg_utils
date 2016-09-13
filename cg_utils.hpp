@@ -239,7 +239,7 @@ namespace CGutils {
 
 
 
-/*
+
     // Ellipse class for representing a mathematical ellipse
     class Ellipse
     {
@@ -268,7 +268,7 @@ namespace CGutils {
         // 3 -> 1 / (r ^ 2)
         Vector *radii[4]; // maybe create an enumerator for these
     };
-*/
+
 
 }
 
