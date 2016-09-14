@@ -123,6 +123,33 @@ Vector Vector::MultiplyComponents(Vector& _v)
 
 
 
+Vector Vector::RotateAroundAxis(Vector& _axis, const float _theta)
+{
+    float u = _axis.GetX();
+    float v = _axis.GetY();
+    float w = _axis.GetZ();
+
+    float cosTheta = std::cos(_theta);
+    float sinTheta = std::sin(_theta);
+    float ms = _axis.Sqrmag();
+    float m = std::sqrt(ms);
+    return Vector(
+        ((u * (u * x[0] + v * x[1] + w * x[2])) + 
+        (((x[0] * (v * v + w * w)) - (u * (v * x[1] + w * x[2]))) * cosTheta) + 
+        (m * ((-w * x[1]) + (v * x[2])) * sinTheta)) / ms,
+
+        ((v * (u * x[0] + v * x[1] + w * x[2])) + 
+        (((x[1] * (u * u + w * w)) - (v * (u * x[0] + w * x[2]))) * cosTheta) + 
+        (m * ((w * x[0]) - (u * x[2])) * sinTheta)) / ms,
+
+        ((w * (u * x[0] + v * x[1] + w * x[2])) + 
+        (((x[2] * (u * u + v * v)) - (w * (u * x[0] + v * x[1]))) * cosTheta) + 
+        (m * (-(v * x[0]) + (u * x[1])) * sinTheta)) / ms
+    );
+}
+
+
+
 // Returns the square of the length 
 float   Vector::Sqrmag() const
 {
@@ -594,8 +621,18 @@ Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granular
     // calsulate angle between _start and _stop
     float theta = _start.AngleBetween(_stop);
 
-    int n = std::fmaxf((int)(theta / granularity) - 1.0f, 0.0f);
-    Vector** v = new Vector*[n];
+    int n = std::fmaxf((int)(theta / _granularity) - 1.0f, 0.0f);
+    int listSize = 2 + n;
+    Vector** v = new Vector*[listSize];
+    v[0] = new Vector(_start.GetX(), _start.GetY(), _start.GetZ());
+
+    for (int i = 1; i < (listSize - 1); i++)
+    {
+        float phi = (i * _granularity);
+        v[i] = new Vector();
+    }
+
+    v[listSize-1] = new Vector(_stop.GetX(), _stop.GetY(), _stop.GetZ());
     return nullptr;
 }
 
