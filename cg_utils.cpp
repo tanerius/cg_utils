@@ -560,8 +560,8 @@ Vector     Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
 }
 
 
-// Solve an ellipse intersection equation
-float       Ellipse::Intersections(Vector& _origin, Vector& _direction)
+// Solve an ellipse intersection equation ax^2 + bx + c = 0
+Vector      Ellipse::Intersections(Vector& _origin, Vector& _direction)
 {
     _direction.Normalize();
 
@@ -569,7 +569,43 @@ float       Ellipse::Intersections(Vector& _origin, Vector& _direction)
         _direction.GetY() * _direction.GetY() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +
         _direction.GetZ() * _direction.GetZ() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ();
 
-    return a; //TODO: Finish this
+    float b = 2.0f * 
+        (
+            _origin.GetX() * _direction.GetX() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
+            _origin.GetY() * _direction.GetY() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +
+            _origin.GetZ() * _direction.GetZ() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ()
+        );
+
+    float c = _origin.GetX() * _origin.GetX() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
+        _origin.GetY() * _origin.GetY() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +
+        _origin.GetZ() * _origin.GetZ() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ() - 1.0f;
+
+    // Now solve ax^2 + bx + c = 0
+    float discriminant = b * b - 4 * a * c;
+
+    Vector(0.0f, 0.0f, 0.0f);
+
+    if (discriminant < 0.0f)
+    {
+        // no intersections
+        return Vector(0.0f, 0.0f, 0.0f);
+    }
+    else if (discriminant == 0.0f)
+    {
+        // one intersection at a tangent point
+        Vector(-0.5f * b / a, 0.0f, 1.0f);
+    }
+    float t = -0.5 * (b + (b > 0.0f ? 1.0f : -1.0f) * std::sqrt(discriminant));
+    float root1 = t / a;
+    float root2 = c / t;
+
+    // Two intersections - return the smallest intersection as the first component
+    if(root1 < root2)
+    {
+        return Vector(root1, root2, 2.0f);
+    }
+    
+    return Vector(root2, root1, 2.0f);
 }
 
 

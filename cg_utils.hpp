@@ -279,7 +279,7 @@ namespace CGutils {
         Vector          GeodeticSurfNormal(Vector& _vertexPosition);
         Vector          GeodeticSurfNormal(Geodetic3D& _geodetic);
         const Vector*   GetR(const RadiusType _rt) { return radii[_rt]; } // get a radius component
-        float           Intersections(Vector& _origin, Vector& _direction);
+        Vector          Intersections(Vector& _origin, Vector& _direction);
         float           MinimumRadius();
         float           MaximumRadius();
 
