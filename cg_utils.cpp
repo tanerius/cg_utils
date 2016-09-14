@@ -540,23 +540,36 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 
 }
 
-Vector*     Ellipse::GeodesicSurfNormal(Vector& _v)
+Vector     Ellipse::GeodeticSurfNormal(Vector& _v)
 {
     // Get a geodesic surface normal
-    return new Vector( _v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])).Normalize() );
+    return Vector( _v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])).Normalize() );
 }
 
 
-Vector*     Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
+Vector     Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
 {
     // Like the previous method but takes in as parameter a geodetic3D
     float cosLatitude = std::cos(_geodetic.Latitude());
 
-    return new Vector(
+    return Vector(
         cosLatitude * std::cos(_geodetic.Longitude()),
         cosLatitude * std::sin(_geodetic.Longitude()),
         std::sin(_geodetic.Latitude())
     );
+}
+
+
+// Solve an ellipse intersection equation
+float       Ellipse::Intersections(Vector& _origin, Vector& _direction)
+{
+    _direction.Normalize();
+
+    float a = _direction.GetX() * _direction.GetX() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
+        _direction.GetY() * _direction.GetY() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +
+        _direction.GetZ() * _direction.GetZ() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ();
+
+    return a; //TODO: Finish this
 }
 
 
@@ -582,36 +595,122 @@ float       Ellipse::MaximumRadius()
 }
 
 
-Vector*     Ellipse::ToVector(Geodetic2D& _geodetic)
+Vector      Ellipse::ToVector(Geodetic2D& _geodetic)
 {
-    Geodetic3D* gd = new Geodetic3D(_geodetic.Latitude(), _geodetic.Longitude(), 0.0f );
-    Vector* v = ToVector(*gd);
-    delete gd;
-    return v;
+    Geodetic3D gd((float)_geodetic.Latitude(), (float)_geodetic.Longitude(), 0.0f );
+    return ToVector(gd);
 }
 
 
 // Convertor from Geodetic coordinate system to cartesian coordinates
-Vector*     Ellipse::ToVector(Geodetic3D& _geodetic)
+Vector      Ellipse::ToVector(Geodetic3D& _geodetic)
 {
-    Vector* n = GeodeticSurfNormal(_geodetic);
-    Vector k = radii[RadiusType::R_SQUARED]->MultiplyComponents(*n);
+    Vector n = GeodeticSurfNormal(_geodetic);
+    Vector k = radii[RadiusType::R_SQUARED]->MultiplyComponents(n);
     double gamma = std::sqrt(
-        (k.GetX() * n->GetX()) +
-        (k.GetY() * n->GetY()) +
-        (k.GetZ() * n->GetZ())
+        (k.GetX() * n.GetX()) +
+        (k.GetY() * n.GetY()) +
+        (k.GetZ() * n.GetZ())
         );
  
     Vector rSurface = Vector(k / gamma);
-    Vector sumV = rSurface + ((*n) * _geodetic.Height());
-    delete n;
 
-    return new Vector (sumV) ;
+    return Vector (rSurface + (n * _geodetic.Height())) ;
 }
 
 
-Geodetic3D* Ellipse::ToGeodetic3D(Vector& _positions)
+
+Geodetic2D  Ellipse::ToGeodetic2D(Vector& _positions)
 {
-    return new Geodetic3D(); 
-    // TODO: implement
+    Vector n = GeodeticSurfNormal(_positions);
+    Geodetic2D gd(
+                      (float) std::atan2 (n.GetY(), n.GetX()),
+                      (float) std::asin(n.GetZ() / n.Magnitude())
+                      );
+    return gd;
+}
+
+
+
+Geodetic3D  Ellipse::ToGeodetic3D(Vector& _position)
+{
+    Vector p = ScaleToGeodeticSurface(_position);
+    Vector h = _position - p;
+    float height = sgn<float>(h.operator*(_position)) * h.Magnitude(); 
+    Geodetic2D gd2d;
+    gd2d = ToGeodetic2D(p);
+    Geodetic3D gd(gd2d.Latitude(), gd2d.Longitude(), height);
+    return gd;
+}
+
+
+Vector      Ellipse::ScaleToGeodeticSurface(Vector _position)
+{
+    float beta = 1.0f / std::sqrt(
+        (_position.GetX() * _position.GetX()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
+        (_position.GetY() * _position.GetY()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +
+        (_position.GetZ() * _position.GetZ()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ()
+    );
+    
+    float n = Vector(
+        beta*_position.GetX()*radii[RadiusType::ONE_OVER_R_SQUARED]->GetX(),
+        beta*_position.GetY()*radii[RadiusType::ONE_OVER_R_SQUARED]->GetY(),
+        beta*_position.GetZ()*radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ()
+    ).Magnitude();
+    
+    float alpha = (1.0f - beta) * (_position.Magnitude() / n);
+    float x2 = _position.GetX();
+    float y2 = _position.GetY();
+    float z2 = _position.GetZ();
+    
+    float da = 0.0f;
+    float db = 0.0f;
+    float dc = 0.0f;
+    
+    float s = 0.0f;
+    float dSdA = 1.0f;
+    
+    do
+    {
+        alpha -= (s / dSdA);
+        da = 1.0f + (alpha * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX());
+        db = 1.0f + (alpha * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY());
+        dc = 1.0f + (alpha * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ());
+        
+        float da2 = da * da;
+        float db2 = db * db;
+        float dc2 = dc * dc;
+        
+        float da3 = da * da2;
+        float db3 = db * db2;
+        float dc3 = dc * dc2;
+
+
+        
+        s = x2 / (radii[RadiusType::R_SQUARED]->GetX() * da2) +
+            y2 / (radii[RadiusType::R_SQUARED]->GetY() * db2) +
+            z2 / (radii[RadiusType::R_SQUARED]->GetZ() * dc2) - 1.0f;
+        
+        dSdA = -2.0 * (
+            x2 / (radii[RadiusType::R_FOURTH]->GetX() * da3) +
+            y2 / (radii[RadiusType::R_FOURTH]->GetY() * db3) +
+            z2 / (radii[RadiusType::R_FOURTH]->GetZ() * dc3)
+        );
+        
+    }
+    while (std::abs(s) > 1e-10);
+
+    return Vector( _position.GetX() / da, _position.GetY() / db, _position.GetZ() / dc );
+    
+}
+
+
+Vector      Ellipse::ScaleToGeocentricSurface(Vector _position)
+{
+    float beta = 1.0f / std::sqrt(
+        (_position.GetX() * _position.GetX()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
+        (_position.GetY() * _position.GetY()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +
+        (_position.GetZ() * _position.GetZ()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ() );
+    
+    return _position * beta;
 }

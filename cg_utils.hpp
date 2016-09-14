@@ -181,6 +181,11 @@ namespace CGutils {
 
 
     Vector Rotate(float _angle, const Vector& _axis, const Vector& _point);
+    
+    
+    template <typename T> int sgn(T val) {
+        return (T(0) < val) - (val < T(0));
+    }
 
 
 
@@ -191,10 +196,12 @@ namespace CGutils {
     public:
         Geodetic2D() : latitude(0.0f), longitude(0.0f) {}
         Geodetic2D(float _lat, float _lng) : latitude(_lat), longitude(_lng) {}
-        Geodetic2D(Geodetic2D& _c) : latitude(_c.latitude), longitude(_c.longitude) {}
+        Geodetic2D(Geodetic2D& _c) : latitude(_c.Latitude()), longitude(_c.Longitude()) {}
 
-        const float   Latitude() { return latitude; }
-        const float   Longitude() { return longitude; }
+        Geodetic2D& operator=(const Geodetic2D& _g) { latitude = _g.Latitude(); longitude = _g.Longitude(); return *this; }
+
+        float   Latitude() const{ return latitude; } 
+        float   Longitude() const { return longitude; } 
         bool EqualsEpsilon(Geodetic2D& _other, double _epsilon);
 
         bool Equals(const Geodetic2D& _other) { return operator==(_other); }
@@ -220,9 +227,16 @@ namespace CGutils {
         Geodetic3D(Geodetic3D& _c) : latitude(_c.latitude), longitude(_c.longitude), height(_c.height) {}
         Geodetic3D(Geodetic2D& _c) : latitude(_c.Latitude()), longitude(_c.Longitude()), height(0.0f) {}
 
-        const float   Latitude() { return latitude; }
-        const float   Longitude() { return longitude; }
-        const float   Height() { return height; }
+        Geodetic3D& operator=(const Geodetic3D& _g) { 
+            latitude = _g.Latitude(); 
+            longitude = _g.Longitude(); 
+            height = _g.Height();
+            return *this; }
+
+
+        float   Latitude() const { return latitude; } 
+        float   Longitude() const { return longitude; } 
+        float   Height() const { return height; } 
 
         bool Equals(const Geodetic3D& _other) { return operator==(_other); }
         inline bool operator==(const Geodetic3D& _c) const {
@@ -261,18 +275,21 @@ namespace CGutils {
         const float     GetY() {return radii[0]->GetY(); }
         const float     GetZ() {return radii[0]->GetZ(); }
 
-        static Vector*  GeocentricSurfNormal(Vector& _vertexPosition) { return new Vector( _vertexPosition.Normalize() ); }
-        Vector*         GeodesicSurfNormal(Vector& _vertexPosition);
-        Vector*         GeodeticSurfNormal(Geodetic3D& _geodetic);
+        static Vector   GeocentricSurfNormal(Vector& _vertexPosition) { return Vector( _vertexPosition.Normalize() ); }
+        Vector          GeodeticSurfNormal(Vector& _vertexPosition);
+        Vector          GeodeticSurfNormal(Geodetic3D& _geodetic);
         const Vector*   GetR(const RadiusType _rt) { return radii[_rt]; } // get a radius component
-
+        float           Intersections(Vector& _origin, Vector& _direction);
         float           MinimumRadius();
         float           MaximumRadius();
 
         // Members to convert Geodetic coordinates to vectors (cartesian coordinates) and vice versa
-        Vector*         ToVector(Geodetic2D& _geodetic);
-        Vector*         ToVector(Geodetic3D& _geodetic);
-        Geodetic3D*     ToGeodetic3D(Vector& _positions);
+        Vector          ToVector(Geodetic2D& _geodetic);
+        Vector          ToVector(Geodetic3D& _geodetic);
+        Geodetic2D      ToGeodetic2D(Vector& _position);
+        Geodetic3D      ToGeodetic3D(Vector& _position);
+        Vector          ScaleToGeodeticSurface(Vector _position);
+        Vector          ScaleToGeocentricSurface(Vector _position);
 
 /*
         float[]         Intersections(Vector origin, Vector direction); 
