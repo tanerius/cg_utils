@@ -269,6 +269,7 @@ namespace CGutils {
         Ellipse(const Vector& _v) { Ellipse(_v.GetX(), _v.GetY(), _v.GetZ()); }
         Ellipse(const float _x, const float _y, const float _z);
 
+
         // Functions to get the radii 
         const float     Get(int _r) { return radii[0]->Get(_r); } 
         const float     GetX() {return radii[0]->GetX(); }
@@ -279,7 +280,11 @@ namespace CGutils {
         Vector          GeodeticSurfNormal(Vector& _vertexPosition);
         Vector          GeodeticSurfNormal(Geodetic3D& _geodetic);
         const Vector*   GetR(const RadiusType _rt) { return radii[_rt]; } // get a radius component
+
+        // Solve an ellipse intersection equation ax^2 + bx + c = 0
+        // Returns vector. Third component indicates the number of solutions
         Vector          Intersections(Vector& _origin, Vector& _direction);
+        
         float           MinimumRadius();
         float           MaximumRadius();
 
