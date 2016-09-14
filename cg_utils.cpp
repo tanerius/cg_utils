@@ -591,8 +591,10 @@ Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granular
     // method to compute a list of durves
     Vector normal; 
     normal = _start.Cross(_stop).Normalize();
+    // calsulate angle between _start and _stop
+    float theta = _start.AngleBetween(_stop);
 
-    int n = 13;
+    int n = std::fmaxf((int)(theta / granularity) - 1.0f, 0.0f);
     Vector** v = new Vector*[n];
     return nullptr;
 }
