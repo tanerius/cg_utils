@@ -296,7 +296,7 @@ namespace CGutils {
         Geodetic2D      ToGeodetic2D(Vector& _position);
         Geodetic3D      ToGeodetic3D(Vector& _position);
         Vector          ScaleToGeodeticSurface(Vector _position);
-        Vector          ScaleToGeocentricSurface(Vector _position);
+        Vector          ScaleToGeocentricSurface(Vector& _position);
 
 /*
         float[]         Intersections(Vector origin, Vector direction); 

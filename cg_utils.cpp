@@ -611,6 +611,7 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 
 
 
+// Compute curved positions on this ellipse given start stop and a granularity
 Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int& _n_out)
 {
     assert(_granularity > 0.0f);
@@ -623,16 +624,18 @@ Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granular
 
     int n = std::fmaxf((int)(theta / _granularity) - 1.0f, 0.0f);
     int listSize = 2 + n;
-    Vector** v = new Vector*[listSize];
-    v[0] = new Vector(_start.GetX(), _start.GetY(), _start.GetZ());
+    Vector** positions = new Vector*[listSize];
+    positions[0] = new Vector(_start.GetX(), _start.GetY(), _start.GetZ());
 
     for (int i = 1; i < (listSize - 1); i++)
     {
         float phi = (i * _granularity);
-        v[i] = new Vector();
+        Vector rotation = _start.RotateAroundAxis(normal, phi);
+        Vector scaledVector = ScaleToGeocentricSurface( rotation );
+        positions[i] = new Vector(scaledVector);
     }
 
-    v[listSize-1] = new Vector(_stop.GetX(), _stop.GetY(), _stop.GetZ());
+    positions[listSize-1] = new Vector(_stop.GetX(), _stop.GetY(), _stop.GetZ());
     return nullptr;
 }
 
@@ -848,7 +851,7 @@ Vector      Ellipse::ScaleToGeodeticSurface(Vector _position)
 
 
 
-Vector      Ellipse::ScaleToGeocentricSurface(Vector _position)
+Vector      Ellipse::ScaleToGeocentricSurface(Vector& _position)
 {
     float beta = 1.0f / std::sqrt(
         (_position.GetX() * _position.GetX()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
