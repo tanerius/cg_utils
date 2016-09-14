@@ -1,5 +1,6 @@
 #include <cmath>
 #include <float.h>
+#include <cassert>
 #include "cg_utils.hpp"
 
 using namespace CGutils;
@@ -52,6 +53,29 @@ Vector  Vector::operator*(float f) const
 
 
 
+// Scalar multiple of vector (kV) (this vector)
+Vector& Vector::operator*=(float f)
+{
+    x[0] *= f;
+    x[1] *= f;
+    x[2] *= f;
+    return *this;
+}
+
+
+
+
+// Calculate an angle between this vector and a given one
+float   Vector::AngleBetween(const Vector& _v)
+{
+    Vector a,b;
+    a = Vector(GetX(),GetY(),GetZ()).Normalize();
+    b = Vector(_v.GetX(),_v.GetY(),_v.GetZ()).Normalize();
+    return std::acos(a * b); // acos of the dot product compute dot product
+}
+
+
+
 // Cross product.
 Vector  Vector::Cross(const Vector& v) const
 {
@@ -75,17 +99,6 @@ Vector& Vector::Normalize()
     } else {
         this->operator/=(f);
     }
-    return *this;
-}
-
-
-
-// Scalar multiple of vector (kV) (this vector)
-Vector& Vector::operator*=(float f)
-{
-    x[0] *= f;
-    x[1] *= f;
-    x[2] *= f;
     return *this;
 }
 
@@ -571,9 +584,16 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 
 
 
-Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int* _n_out)
+Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int& _n_out)
 {
+    assert(_granularity > 0.0f);
+
     // method to compute a list of durves
+    Vector normal; 
+    normal = _start.Cross(_stop).Normalize();
+
+    int n = 13;
+    Vector** v = new Vector*[n];
     return nullptr;
 }
 

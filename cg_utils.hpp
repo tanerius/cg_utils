@@ -23,6 +23,7 @@ namespace CGutils {
 
         operator    const float*() const { return &x[0]; }
                 
+        float   AngleBetween(const Vector& _v); //get an angle between two vectors
         float   Get(int _element) const { return x[_element]; }
         void    Set(int _element, float _newValue) { x[_element] = _newValue; }
         float   GetX() const { return x[0]; }
@@ -269,7 +270,7 @@ namespace CGutils {
         Ellipse(const Vector& _v) { Ellipse(_v.GetX(), _v.GetY(), _v.GetZ()); }
         Ellipse(const float _x, const float _y, const float _z);
 
-        Vector**        ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int* _n_out);
+        Vector**        ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int& _n_out);
 
         // Functions to get the radii 
         const float     Get(int _r) { return radii[0]->Get(_r); } 
