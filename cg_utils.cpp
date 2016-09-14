@@ -571,7 +571,15 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 
 
 
-Vector     Ellipse::GeodeticSurfNormal(Vector& _v)
+Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int* _n_out)
+{
+    // method to compute a list of durves
+    return nullptr;
+}
+
+
+
+Vector      Ellipse::GeodeticSurfNormal(Vector& _v)
 {
     // Get a geodesic surface normal
     return Vector( _v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])).Normalize() );

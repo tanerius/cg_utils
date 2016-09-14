@@ -269,6 +269,7 @@ namespace CGutils {
         Ellipse(const Vector& _v) { Ellipse(_v.GetX(), _v.GetY(), _v.GetZ()); }
         Ellipse(const float _x, const float _y, const float _z);
 
+        Vector**        ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int* _n_out);
 
         // Functions to get the radii 
         const float     Get(int _r) { return radii[0]->Get(_r); } 
@@ -284,7 +285,7 @@ namespace CGutils {
         // Solve an ellipse intersection equation ax^2 + bx + c = 0
         // Returns vector. Third component indicates the number of solutions
         Vector          Intersections(Vector& _origin, Vector& _direction);
-        
+
         float           MinimumRadius();
         float           MaximumRadius();
 
