@@ -587,6 +587,10 @@ bool Geodetic2D::EqualsEpsilon(Geodetic2D& _other, double _epsilon)
 
 
 
+
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 // Eclipse implementation
 Ellipse::Ellipse(const float _x, const float _y, const float _z)
 {
@@ -614,6 +618,7 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 // Compute curved positions on this ellipse given start stop and a granularity
 Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int& _n_out)
 {
+    // there MUST ecist a granularity
     assert(_granularity > 0.0f);
 
     // method to compute a list of durves
