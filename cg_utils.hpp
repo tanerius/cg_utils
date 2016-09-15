@@ -20,6 +20,7 @@ namespace CGutils {
         Vector() {}
         Vector(float _x, float _y, float _z) { x[0] = _x; x[1] = _y; x[2] = _z; }
         Vector(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; }
+        
 
         operator    const float*() const { return &x[0]; }
                 
@@ -44,7 +45,15 @@ namespace CGutils {
         Vector  MultiplyComponents(Vector& _v);
         Vector  RotateAroundAxis(Vector& _v, const float _theta);
 
-        Vector& Normalize();
+
+        static Vector  Normalize(Vector _v)
+        {
+            Vector normalized = _v;
+            normalized.NormalizeThis();
+            return normalized;
+        }
+
+        void    NormalizeThis();
         Vector& operator=(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; return *this; }
         Vector& operator+=(const Vector& _v);
         Vector& operator-=(const Vector& _v);
@@ -278,7 +287,7 @@ namespace CGutils {
         const float     GetY() {return radii[0]->GetY(); }
         const float     GetZ() {return radii[0]->GetZ(); }
 
-        static Vector   GeocentricSurfNormal(Vector& _vertexPosition) { return Vector( _vertexPosition.Normalize() ); }
+        static Vector   GeocentricSurfNormal(Vector& _vertexPosition) { return Vector::Normalize(_vertexPosition); }
         Vector          GeodeticSurfNormal(Vector& _vertexPosition);
         Vector          GeodeticSurfNormal(Geodetic3D& _geodetic);
         const Vector*   GetR(const RadiusType _rt) { return radii[_rt]; } // get a radius component

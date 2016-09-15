@@ -5,6 +5,21 @@
 
 using namespace CGutils;
 
+
+// Check if a vector component is not a number
+bool    Vector::CheckNaN() const
+{
+    if (fabs(x[0]) > 10000000 || fabs(x[1]) > 10000000 || fabs(x[2]) > 10000000) {
+        return true;
+    }
+    if (isnan(x[0]) || isnan(x[1]) || isnan(x[2])) {
+        return true;
+    }
+    else return false;
+}
+
+
+
 // Vector addition.
 Vector  Vector::operator+(const Vector& v) const
 {
@@ -68,15 +83,15 @@ Vector& Vector::operator*=(float f)
 // Calculate an angle between this vector and a given one
 float   Vector::AngleBetween(const Vector& _v)
 {
-    Vector a,b;
-    a = Vector(GetX(),GetY(),GetZ()).Normalize();
-    b = Vector(_v.GetX(),_v.GetY(),_v.GetZ()).Normalize();
-    return std::acos(a * b); // acos of the dot product compute dot product
+    Vector a(GetX(),GetY(),GetZ());
+    a.NormalizeThis();
+    return std::acos(a * Vector::Normalize(_v)); // acos of the dot product compute dot product
 }
 
 
 
 // Cross product.
+// Returns a new copy of a vector on stack
 Vector  Vector::Cross(const Vector& v) const
 {
     Vector  result;
@@ -89,7 +104,8 @@ Vector  Vector::Cross(const Vector& v) const
 
 
 // Scales the Vector to unit length.  Preserves its direction.
-Vector& Vector::Normalize()
+// This is an in place normalization which will modify this vector
+void Vector::NormalizeThis()
 {
     float   f = Magnitude();
     if (f < 0.0000001) {
@@ -99,7 +115,6 @@ Vector& Vector::Normalize()
     } else {
         this->operator/=(f);
     }
-    return *this;
 }
 
 
@@ -154,20 +169,6 @@ Vector Vector::RotateAroundAxis(Vector& _axis, const float _theta)
 float   Vector::Sqrmag() const
 {
     return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
-}
-
-
-
-// Check if a vector component is not a number
-bool    Vector::CheckNaN() const
-{
-    if (fabs(x[0]) > 10000000 || fabs(x[1]) > 10000000 || fabs(x[2]) > 10000000) {
-        return true;
-    }
-    if (isnan(x[0]) || isnan(x[1]) || isnan(x[2])) {
-        return true;
-    }
-    else return false;
 }
 
 
@@ -267,8 +268,8 @@ Quaternion  Quaternion::Lerp(const Quaternion& _q, float _f) const
 
     if (cos_omega < 0.99) {
         // Do the spherical interp.
-        float   omega = acos(cos_omega);
-        float   sin_omega = sin(omega);
+        float omega = acos(cos_omega);
+        float sin_omega = sin(omega);
         f0 = sin((1 - _f) * omega) / sin_omega;
         f1 = sin(_f * omega) / sin_omega;
     } else {
@@ -425,9 +426,9 @@ void Matrix::InvertRotation()
 // Normalizes the rotation part of the Matrix.
 void Matrix::NormalizeRotation()
 {
-    m[0].Normalize();
+    m[0].NormalizeThis();
     m[1] = m[2].Cross(m[0]);
-    m[1].Normalize();
+    m[1].NormalizeThis();
     m[2] = m[0].Cross(m[1]);
 }
 
@@ -623,7 +624,7 @@ Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granular
 
     // method to compute a list of durves
     Vector normal; 
-    normal = _start.Cross(_stop).Normalize();
+    normal = Vector::Normalize(_start.Cross(_stop));
     // calsulate angle between _start and _stop
     float theta = _start.AngleBetween(_stop);
 
@@ -649,7 +650,7 @@ Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granular
 Vector      Ellipse::GeodeticSurfNormal(Vector& _v)
 {
     // Get a geodesic surface normal
-    return Vector( _v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])).Normalize() );
+    return Vector::Normalize(_v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])));
 }
 
 
@@ -672,7 +673,7 @@ Vector      Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
 // Returns vector. Third component indicates the number of solutions
 Vector      Ellipse::Intersections(Vector& _origin, Vector& _direction)
 {
-    _direction.Normalize();
+    _direction.NormalizeThis();
 
     float a = _direction.GetX() * _direction.GetX() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
         _direction.GetY() * _direction.GetY() * radii[RadiusType::ONE_OVER_R_SQUARED]->GetY() +

@@ -13,7 +13,7 @@ int main()
     printf("Initializing Vs(%f, %f, %f) to stack \n", Vs.GetX(), Vs.GetY(), Vs.GetZ());
     printf("Initializing Vh(%f, %f, %f) to heap \n", Vh->GetX(), Vh->GetY(), Vh->GetZ());
 
-    Vector Vn = Vs.Normalize();
+    Vector Vn = Vector::Normalize(Vs);
     printf("Normalizing Normalize(Vs) => Vn(%f, %f, %f) \n", Vn.GetX(), Vn.GetY(), Vn.GetZ());
     printf("Magnitude of Vs(%f, %f, %f) = %f\n", Vs.GetX(), Vs.GetY(), Vs.GetZ(), Vs.Magnitude());
     printf("Magnitude of Vh(%f, %f, %f) = %f\n", Vh->GetX(), Vh->GetY(), Vh->GetZ(), Vh->Magnitude());
