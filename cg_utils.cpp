@@ -616,7 +616,8 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 
 
 
-// Compute curved positions on this ellipse given start stop and a granularity
+// Compute a curve (path) on an ellipse given start and stop points and a granularity
+// which is an angle between two adjecent points (appoximations)
 Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int& _n_out)
 {
     // there MUST ecist a granularity
@@ -642,7 +643,7 @@ Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granular
     }
 
     positions[listSize-1] = new Vector(_stop.GetX(), _stop.GetY(), _stop.GetZ());
-    return nullptr;
+    return positions;
 }
 
 

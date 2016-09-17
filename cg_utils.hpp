@@ -307,9 +307,7 @@ namespace CGutils {
         Vector          ScaleToGeodeticSurface(Vector _position);
         Vector          ScaleToGeocentricSurface(Vector& _position);
 
-/*
-        float[]         Intersections(Vector origin, Vector direction); 
-*/
+
     private:
         Vector *radii[4];
     };
