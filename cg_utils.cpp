@@ -128,7 +128,7 @@ float   Vector::Magnitude() const
 
 
 // Multiply a vectors components by another given vector
-Vector Vector::MultiplyComponents(Vector& _v)
+Vector Vector::MultiplyComponents(const Vector& _v)
 {
     Vector ret = Vector(x[0] * _v.GetX(),
         x[1] * _v.GetY(),
@@ -138,7 +138,7 @@ Vector Vector::MultiplyComponents(Vector& _v)
 
 
 
-Vector Vector::RotateAroundAxis(Vector& _axis, const float _theta)
+Vector Vector::RotateAroundAxis(const Vector& _axis, const float _theta)
 {
     float u = _axis.GetX();
     float v = _axis.GetY();

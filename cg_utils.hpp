@@ -18,58 +18,49 @@ namespace CGutils {
     {
     public:
         Vector() {}
-        Vector(float _x, float _y, float _z) { x[0] = _x; x[1] = _y; x[2] = _z; }
+        Vector(const float _x, const float _y, const float _z) { x[0] = _x; x[1] = _y; x[2] = _z; }
         Vector(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; }
-        
 
-        operator    const float*() const { return &x[0]; }
+        bool            CheckNaN() const;   
+
+        float           AngleBetween(const Vector& _v); //get an angle between two vectors
+        float           Get(int _element) const { return x[_element]; }
+        float           GetX() const { return x[0]; }
+        float           GetY() const { return x[1]; }
+        float           GetZ() const { return x[2]; }
+        float           Magnitude() const;
+        float           operator*(const Vector& _v) const; // inline 
+        float           Sqrmag() const;
+
+        // When a Vector is assigned to a float what happens (implicit conversion) ?
+        operator        const float*() const { return &x[0]; }
+
+        static Vector   Normalize(const Vector _v); // inline
                 
-        float   AngleBetween(const Vector& _v); //get an angle between two vectors
-        float   Get(int _element) const { return x[_element]; }
-        void    Set(int _element, float _newValue) { x[_element] = _newValue; }
-        float   GetX() const { return x[0]; }
-        float   GetY() const { return x[1]; }
-        float   GetZ() const { return x[2]; }
-        void    SetX(float _newx) { x[0] = _newx; }
-        void    SetY(float _newy) { x[1] = _newy; }
-        void    SetZ(float _newz) { x[2] = _newz; }
-        void    SetXYZ(float _newx, float _newy, float _newz) { x[0] = _newx; x[1] = _newy; x[2] = _newz; }
+        void            NormalizeThis(); // Normalize this vector (modify it)
+        void            Set(int _element, float _newValue) { x[_element] = _newValue; }   
+        void            SetX(float _newx) { x[0] = _newx; }
+        void            SetY(float _newy) { x[1] = _newy; }
+        void            SetZ(float _newz) { x[2] = _newz; }
+        void            SetXYZ(const float _newx, const float _newy, const float _newz); // inline 
         
-        Vector  operator+(const Vector& _v) const;
-        Vector  operator-(const Vector& _v) const;
-        Vector  operator-() const;
-        float   operator*(const Vector& _v) const; // inline implementation in this file -> below
-        Vector  operator*(float _f) const;
-        Vector  operator/(float _f) const { return this->operator*(1.0 / _f); }
-        Vector  Cross(const Vector& _v) const;
-        Vector  MultiplyComponents(Vector& _v);
-        Vector  RotateAroundAxis(Vector& _v, const float _theta);
-
-
-        static Vector  Normalize(Vector _v)
-        {
-            Vector normalized = _v;
-            normalized.NormalizeThis();
-            return normalized;
-        }
-
-        void    NormalizeThis();
-        Vector& operator=(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; return *this; }
-        Vector& operator+=(const Vector& _v);
-        Vector& operator-=(const Vector& _v);
-        Vector& operator*=(float _f);
-        Vector& operator/=(float _f) { return this->operator*=(1.0 / _f); }
-
-        float   Magnitude() const;
-        float   Sqrmag() const;
-    //  float   min() const;
-    //  float   max() const;
-    //  float   minabs() const;
-    //  float   maxabs() const;
-
-        bool    CheckNaN() const;   
+        Vector          Cross(const Vector& _v) const;
+        Vector          MultiplyComponents(const Vector& _v);
+        Vector          operator+(const Vector& _v) const;
+        Vector          operator-(const Vector& _v) const;
+        Vector          operator-() const;
+        Vector          operator*(float _f) const;
+        Vector          operator/(float _f) const { return this->operator*(1.0 / _f); }
+        Vector          RotateAroundAxis(const Vector& _v, const float _theta);
+        
+        Vector&         operator=(const Vector& _v) { x[0] = _v.x[0]; x[1] = _v.x[1]; x[2] = _v.x[2]; return *this; }
+        Vector&         operator+=(const Vector& _v); // inline
+        Vector&         operator-=(const Vector& _v); // inline 
+        Vector&         operator*=(float _f);
+        Vector&         operator/=(float _f) { return this->operator*=(1.0 / _f); }
+        
     private:
-        float   x[3];
+        float           x[3];
     };
 
 // Make sure these are defined only once
@@ -104,6 +95,23 @@ namespace CGutils {
         x[1] -= _v.x[1];
         x[2] -= _v.x[2];
         return *this;
+    }
+
+
+    // Static function to return a normalized vector
+    inline Vector Vector::Normalize(const Vector _v)
+    {
+        Vector normalized = _v;
+        normalized.NormalizeThis();
+        return normalized;
+    }
+
+
+    inline void Vector::SetXYZ(const float _newx, const float _newy, const float _newz)
+    { 
+        x[0] = _newx; 
+        x[1] = _newy; 
+        x[2] = _newz; 
     }
 
 #endif // INLINE_VECTOR
@@ -210,15 +218,16 @@ namespace CGutils {
 
         Geodetic2D& operator=(const Geodetic2D& _g) { latitude = _g.Latitude(); longitude = _g.Longitude(); return *this; }
 
-        float   Latitude() const{ return latitude; } 
-        float   Longitude() const { return longitude; } 
-        bool EqualsEpsilon(Geodetic2D& _other, double _epsilon);
+        float           Latitude() const{ return latitude; } 
+        float           Longitude() const { return longitude; } 
+        bool            EqualsEpsilon(Geodetic2D& _other, double _epsilon);
 
-        bool Equals(const Geodetic2D& _other) { return operator==(_other); }
-        inline bool operator==(const Geodetic2D& _c) const {
+        bool            Equals(const Geodetic2D& _other) { return operator==(_other); }
+        inline bool     operator==(const Geodetic2D& _c) const 
+        {
             return ( (_c.latitude==latitude) && (_c.longitude==longitude) );
         }
-        inline bool operator!=(const Geodetic2D& _other) const { return !operator==(_other); }
+        inline bool     operator!=(const Geodetic2D& _other) const { return !operator==(_other); }
 
     private:
         float latitude;
