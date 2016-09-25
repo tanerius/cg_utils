@@ -6,8 +6,8 @@
 using namespace CGutils;
 
 
-// Check if a vector component is not a number
-bool    Vector::CheckNaN() const
+// Check if a CGVector3D component is not a number
+bool    CGVector3D::CheckNaN() const
 {
     if (fabs(x[0]) > 10000000 || fabs(x[1]) > 10000000 || fabs(x[2]) > 10000000) {
         return true;
@@ -20,10 +20,10 @@ bool    Vector::CheckNaN() const
 
 
 
-// Vector addition.
-Vector  Vector::operator+(const Vector& v) const
+// CGVector3D addition.
+CGVector3D  CGVector3D::operator+(const CGVector3D& v) const
 {
-    Vector  result;
+    CGVector3D  result;
     result.x[0] = x[0] + v.x[0];
     result.x[1] = x[1] + v.x[1];
     result.x[2] = x[2] + v.x[2];
@@ -32,10 +32,10 @@ Vector  Vector::operator+(const Vector& v) const
 
 
 
-// Vector subtraction.
-Vector  Vector::operator-(const Vector& v) const
+// CGVector3D subtraction.
+CGVector3D  CGVector3D::operator-(const CGVector3D& v) const
 {
-    Vector  result;
+    CGVector3D  result;
     result.x[0] = x[0] - v.x[0];
     result.x[1] = x[1] - v.x[1];
     result.x[2] = x[2] - v.x[2];
@@ -44,10 +44,10 @@ Vector  Vector::operator-(const Vector& v) const
 
 
 
-// Returns negative of given vector.
-Vector  Vector::operator-() const
+// Returns negative of given CGVector3D.
+CGVector3D  CGVector3D::operator-() const
 {
-    Vector  result;
+    CGVector3D  result;
     result.x[0] = -x[0];
     result.x[1] = -x[1];
     result.x[2] = -x[2];
@@ -56,10 +56,10 @@ Vector  Vector::operator-() const
 
 
 
-// Scalar multiple of vector (kV)
-Vector  Vector::operator*(float f) const
+// Scalar multiple of CGVector3D (kV)
+CGVector3D  CGVector3D::operator*(float f) const
 {
-    Vector  result;
+    CGVector3D  result;
     result.x[0] = x[0] * f;
     result.x[1] = x[1] * f;
     result.x[2] = x[2] * f;
@@ -68,8 +68,8 @@ Vector  Vector::operator*(float f) const
 
 
 
-// Scalar multiple of vector (kV) (this vector)
-Vector& Vector::operator*=(float f)
+// Scalar multiple of CGVector3D (kV) (this CGVector3D)
+CGVector3D& CGVector3D::operator*=(float f)
 {
     x[0] *= f;
     x[1] *= f;
@@ -80,21 +80,21 @@ Vector& Vector::operator*=(float f)
 
 
 
-// Calculate an angle between this vector and a given one
-float   Vector::AngleBetween(const Vector& _v)
+// Calculate an angle between this CGVector3D and a given one
+float   CGVector3D::AngleBetween(const CGVector3D& _v)
 {
-    Vector a(GetX(),GetY(),GetZ());
+    CGVector3D a(GetX(),GetY(),GetZ());
     a.NormalizeThis();
-    return std::acos(a * Vector::Normalize(_v)); // acos of the dot product compute dot product
+    return std::acos(a * CGVector3D::Normalize(_v)); // acos of the dot product compute dot product
 }
 
 
 
 // Cross product.
-// Returns a new copy of a vector on stack
-Vector  Vector::Cross(const Vector& v) const
+// Returns a new copy of a CGVector3D on stack
+CGVector3D  CGVector3D::Cross(const CGVector3D& v) const
 {
-    Vector  result;
+    CGVector3D  result;
     result.x[0] = x[1] * v.x[2] - x[2] * v.x[1];
     result.x[1] = x[2] * v.x[0] - x[0] * v.x[2];
     result.x[2] = x[0] * v.x[1] - x[1] * v.x[0];
@@ -103,9 +103,9 @@ Vector  Vector::Cross(const Vector& v) const
 
 
 
-// Scales the Vector to unit length.  Preserves its direction.
-// This is an in place normalization which will modify this vector
-void Vector::NormalizeThis()
+// Scales the CGVector3D to unit length.  Preserves its direction.
+// This is an in place normalization which will modify this CGVector3D
+void CGVector3D::NormalizeThis()
 {
     float   f = Magnitude();
     if (f < 0.0000001) {
@@ -119,18 +119,18 @@ void Vector::NormalizeThis()
 
 
 
-// Return magnitude of the vector
-float   Vector::Magnitude() const
+// Return magnitude of the CGVector3D
+float   CGVector3D::Magnitude() const
 {
     return sqrt(Sqrmag());
 }
 
 
 
-// Multiply a vectors components by another given vector
-Vector Vector::MultiplyComponents(const Vector& _v)
+// Multiply a CGVector3Ds components by another given CGVector3D
+CGVector3D CGVector3D::MultiplyComponents(const CGVector3D& _v)
 {
-    Vector ret = Vector(x[0] * _v.GetX(),
+    CGVector3D ret = CGVector3D(x[0] * _v.GetX(),
         x[1] * _v.GetY(),
         x[2] * _v.GetZ());
     return ret;
@@ -138,7 +138,7 @@ Vector Vector::MultiplyComponents(const Vector& _v)
 
 
 
-Vector Vector::RotateAroundAxis(const Vector& _axis, const float _theta)
+CGVector3D CGVector3D::RotateAroundAxis(const CGVector3D& _axis, const float _theta)
 {
     float u = _axis.GetX();
     float v = _axis.GetY();
@@ -148,7 +148,7 @@ Vector Vector::RotateAroundAxis(const Vector& _axis, const float _theta)
     float sinTheta = std::sin(_theta);
     float ms = _axis.Sqrmag();
     float m = std::sqrt(ms);
-    return Vector(
+    return CGVector3D(
         ((u * (u * x[0] + v * x[1] + w * x[2])) + 
         (((x[0] * (v * v + w * w)) - (u * (v * x[1] + w * x[2]))) * cosTheta) + 
         (m * ((-w * x[1]) + (v * x[2])) * sinTheta)) / ms,
@@ -166,19 +166,19 @@ Vector Vector::RotateAroundAxis(const Vector& _axis, const float _theta)
 
 
 // Returns the square of the length 
-float   Vector::Sqrmag() const
+float   CGVector3D::Sqrmag() const
 {
     return x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
 }
 
 
 
-// Define the default basic vectors
-Vector  ZeroVector(0.0f, 0.0f, 0.0f);
-Vector  UnitVector(1.0f, 1.0f, 1.0f);
-Vector  XAxis(1.0f, 0.0f, 0.0f);
-Vector  YAxis(0.0f, 1.0f, 0.0f);
-Vector  ZAxis(0.0f, 0.0f, 1.0f);
+// Define the default basic CGVector3Ds
+CGVector3D  ZeroVector3D(0.0f, 0.0f, 0.0f);
+CGVector3D  UnitVector3D(1.0f, 1.0f, 1.0f);
+CGVector3D  XAxis(1.0f, 0.0f, 0.0f);
+CGVector3D  YAxis(0.0f, 1.0f, 0.0f);
+CGVector3D  ZAxis(0.0f, 0.0f, 1.0f);
 
 
 
@@ -190,11 +190,11 @@ Vector  ZAxis(0.0f, 0.0f, 1.0f);
 
 
 
-Quaternion::Quaternion(const Vector& _axis, float _angle /* in radians */)
+Quaternion::Quaternion(const CGVector3D& _axis, float _angle /* in radians */)
 {
     scalar = cos(_angle / 2);
-    vector = _axis;
-    vector *= sin(_angle / 2);
+    v = _axis;
+    v *= sin(_angle / 2);
 }
 
 
@@ -202,8 +202,8 @@ Quaternion::Quaternion(const Vector& _axis, float _angle /* in radians */)
 Quaternion  Quaternion::operator*(const Quaternion& _q) const
 {
     return Quaternion(
-        scalar * _q.scalar - vector * _q.vector, 
-        _q.vector * scalar + vector * _q.scalar + vector.Cross(_q.vector)
+        scalar * _q.scalar - v * _q.v, 
+        _q.v * scalar + v * _q.scalar + v.Cross(_q.v)
         );
 }
 
@@ -212,15 +212,15 @@ Quaternion  Quaternion::operator*(const Quaternion& _q) const
 // Ensures that the Quaternion has magnitude 1.
 Quaternion& Quaternion::Normalize()
 {
-    float   mag = sqrt(scalar * scalar + vector * vector);
+    float   mag = sqrt(scalar * scalar + v * v);
     if (mag > 0.0000001) {
         float   inv = 1.0 / mag;
         scalar *= inv;
-        vector *= inv;
+        v *= inv;
     } else {
         // No rotation! Bad quaternion
         scalar = 1;
-        vector = ZeroVector;
+        v = ZeroVector3D;
     }
 
     return *this;
@@ -237,13 +237,13 @@ Quaternion& Quaternion::operator*=(const Quaternion& _q)
 
 
 
-// Rotates the given vector v by the rotation represented by this Quaternion.
-// Stores the result in the given _result vector.
-void    Quaternion::ApplyRotation(Vector* _result, const Vector& _v)
+// Rotates the given CGVector3D v by the rotation represented by this Quaternion.
+// Stores the result in the given _result CGVector3D.
+void    Quaternion::ApplyRotation(CGVector3D* _result, const CGVector3D& _v)
 {
-    Quaternion  q(*this * Quaternion(0, _v) * Quaternion(scalar, -vector));    
+    Quaternion  q(*this * Quaternion(0, _v) * Quaternion(scalar, -v));    
 
-    *_result = q.vector;
+    *_result = q.v;
 }
 
 
@@ -256,13 +256,13 @@ Quaternion  Quaternion::Lerp(const Quaternion& _q, float _f) const
 
     float f0, f1;
 
-    float cos_omega = vector * _q.vector + scalar * _q.scalar;
+    float cos_omega = v * _q.v + scalar * _q.scalar;
     Quaternion  qtemp(_q);
 
     // Adjust signs if necessary.
     if (cos_omega < 0) {
         cos_omega = -cos_omega;
-        qtemp.vector = -qtemp.vector;
+        qtemp.v = -qtemp.v;
         qtemp.scalar = -qtemp.scalar;
     }
 
@@ -279,7 +279,7 @@ Quaternion  Quaternion::Lerp(const Quaternion& _q, float _f) const
     }
     
     result.scalar = scalar * f0 + qtemp.scalar * f1;
-    result.vector = vector * f0 + qtemp.vector * f1;
+    result.v = v * f0 + qtemp.v * f1;
     result.Normalize();
 
     return result;
@@ -296,20 +296,20 @@ void Matrix::Identity()
     SetColumn(0, XAxis);
     SetColumn(1, YAxis);
     SetColumn(2, ZAxis);
-    SetColumn(3, ZeroVector);
+    SetColumn(3, ZeroVector3D);
 }
 
 
 
 // Turns *this into a view Matrix, given the direction the camera is
-// looking (ViewNormal) and the camera's up vector (ViewUp), and its
-// location (ViewLocation) (all vectors in world-coordinates).  The
+// looking (ViewNormal) and the camera's up CGVector3D (ViewUp), and its
+// location (ViewLocation) (all CGVector3Ds in world-coordinates).  The
 // resulting Matrix will transform points from world coordinates to view
 // coordinates, which is a right-handed system with the x axis pointing
 // left, the y axis pointing up, and the z axis pointing into the scene.
-void Matrix::View(const Vector& _vViewNormal, const Vector& _vViewUp, const Vector& _vViewLocation)
+void Matrix::View(const CGVector3D& _vViewNormal, const CGVector3D& _vViewUp, const CGVector3D& _vViewLocation)
 {
-    Vector _vViewX = _vViewUp.Cross(_vViewNormal);
+    CGVector3D _vViewX = _vViewUp.Cross(_vViewNormal);
 
     // Construct the view-to-world Matrix.
     Orient(_vViewX, _vViewUp, _vViewLocation);
@@ -320,12 +320,12 @@ void Matrix::View(const Vector& _vViewNormal, const Vector& _vViewUp, const Vect
 
 
 
-// Turns *this into a transformation Matrix, that transforms vectors
+// Turns *this into a transformation Matrix, that transforms CGVector3Ds
 // from object coordinates to world coordinates, given the object's Direction, Up,
 // and Location in world coordinates.
-void Matrix::Orient(const Vector& _vDirection, const Vector& _vUp, const Vector& _vLocation)
+void Matrix::Orient(const CGVector3D& _vDirection, const CGVector3D& _vUp, const CGVector3D& _vLocation)
 {
-    Vector vZAxis = _vDirection.Cross(_vUp);
+    CGVector3D vZAxis = _vDirection.Cross(_vUp);
 
     SetColumn(0, _vDirection);
     SetColumn(1, _vUp);
@@ -335,10 +335,10 @@ void Matrix::Orient(const Vector& _vDirection, const Vector& _vUp, const Vector&
 
 
 
-// Applies *this to the given vector, and returns the transformed vector.
-Vector Matrix::operator*(const Vector& _v) const
+// Applies *this to the given CGVector3D, and returns the transformed CGVector3D.
+CGVector3D Matrix::operator*(const CGVector3D& _v) const
 {
-    Vector result;
+    CGVector3D result;
     Apply(&result, _v);
     return result;
 }
@@ -360,10 +360,10 @@ Matrix Matrix::operator*(const Matrix& _a) const
 // Multiplies left * right, and puts the result in *dest.
 void Matrix::Compose(Matrix* _dest, const Matrix& _left, const Matrix& _right)
 {
-    _left.ApplyRotation(&const_cast<Vector&>(_dest->GetColumn(0)), _right.GetColumn(0));
-    _left.ApplyRotation(&const_cast<Vector&>(_dest->GetColumn(1)), _right.GetColumn(1));
-    _left.ApplyRotation(&const_cast<Vector&>(_dest->GetColumn(2)), _right.GetColumn(2));
-    _left.Apply(&const_cast<Vector&>(_dest->GetColumn(3)), _right.GetColumn(3));
+    _left.ApplyRotation(&const_cast<CGVector3D&>(_dest->GetColumn(0)), _right.GetColumn(0));
+    _left.ApplyRotation(&const_cast<CGVector3D&>(_dest->GetColumn(1)), _right.GetColumn(1));
+    _left.ApplyRotation(&const_cast<CGVector3D&>(_dest->GetColumn(2)), _right.GetColumn(2));
+    _left.Apply(&const_cast<CGVector3D&>(_dest->GetColumn(3)), _right.GetColumn(3));
 }
 
 
@@ -394,7 +394,7 @@ void Matrix::Invert()
     InvertRotation();
     // Compute the translation part of the inverted Matrix, by applying
     // the inverse rotation to the original translation.
-    Vector  vTransPrime;
+    CGVector3D  vTransPrime;
     ApplyRotation(&vTransPrime, GetColumn(3));
     SetColumn(3, -vTransPrime);
 }
@@ -435,7 +435,7 @@ void Matrix::NormalizeRotation()
 
 
 // Applies v to *this, and puts the transformed result in *result.
-void Matrix::Apply(Vector* _result, const Vector& _v) const
+void Matrix::Apply(CGVector3D* _result, const CGVector3D& _v) const
 {
     // Do the rotation.
     ApplyRotation(_result, _v);
@@ -446,7 +446,7 @@ void Matrix::Apply(Vector* _result, const Vector& _v) const
 
 
 // Applies the rotation portion of *this, and puts the transformed result in *result.
-void Matrix::ApplyRotation(Vector* _result, const Vector& _v) const
+void Matrix::ApplyRotation(CGVector3D* _result, const CGVector3D& _v) const
 {
     _result->Set(0, m[0].Get(0) * _v.Get(0) + m[1].Get(0) * _v.Get(1) + m[2].Get(0) * _v.Get(2));
     _result->Set(1, m[0].Get(1) * _v.Get(0) + m[1].Get(1) * _v.Get(1) + m[2].Get(1) * _v.Get(2));
@@ -456,7 +456,7 @@ void Matrix::ApplyRotation(Vector* _result, const Vector& _v) const
 
 
 // Applies v to the inverse of *this, and puts the transformed result in *result.
-void Matrix::ApplyInverse(Vector* _result, const Vector& _v) const
+void Matrix::ApplyInverse(CGVector3D* _result, const CGVector3D& _v) const
 {
     ApplyInverseRotation(_result, _v - m[3]);
 }
@@ -464,7 +464,7 @@ void Matrix::ApplyInverse(Vector* _result, const Vector& _v) const
 
 
 // Applies v to the inverse rotation part of *this, and puts the result in *result.
-void Matrix::ApplyInverseRotation(Vector* _result, const Vector& _v) const
+void Matrix::ApplyInverseRotation(CGVector3D* _result, const CGVector3D& _v) const
 {
     _result->Set(0, m[0] * _v);
     _result->Set(1, m[1] * _v);
@@ -474,9 +474,9 @@ void Matrix::ApplyInverseRotation(Vector* _result, const Vector& _v) const
 
 
 // Composes a translation on the right of *this.
-void Matrix::Translate(const Vector& _v)
+void Matrix::Translate(const CGVector3D& _v)
 {
-    Vector newtrans;
+    CGVector3D newtrans;
     Apply(&newtrans, _v);
     SetColumn(3, newtrans);
 }
@@ -488,7 +488,7 @@ void Matrix::Translate(const Vector& _v)
 void Matrix::SetOrientation(const Quaternion& _q)
 {
     float S = _q.GetS();
-    const Vector& v = _q.GetV();
+    const CGVector3D& v = _q.GetV();
     
     m[0].Set(0, 1 - 2 * v.GetY() * v.GetY() - 2 * v.GetZ() * v.GetZ());
     m[0].Set(1, 2 * v.GetX() * v.GetY() + 2 * S * v.GetZ());
@@ -518,7 +518,7 @@ Quaternion Matrix::GetOrientation() const
         s = sqrt(tr + 1);
         q.SetS(0.5 * s);
         s = 0.5 / s;
-        q.SetV(Vector(m[1].Get(2) - m[2].Get(1), m[2].Get(0) - m[0].Get(2), m[0].Get(1) - m[1].Get(0)) * s);
+        q.SetV(CGVector3D(m[1].Get(2) - m[2].Get(1), m[2].Get(0) - m[0].Get(2), m[0].Get(1) - m[1].Get(0)) * s);
     } else {
         int i = 0;
 
@@ -559,7 +559,7 @@ Quaternion Matrix::GetOrientation() const
             break;
         }
         q.SetS(qr);
-        q.SetV(Vector(qi, qj, qk));
+        q.SetV(CGVector3D(qi, qj, qk));
     }
 
     return q;
@@ -569,10 +569,10 @@ Quaternion Matrix::GetOrientation() const
 
 // Rotates the given point through the given angle (in radians) about the given
 // axis.
-Vector Rotate(float _angle, const Vector& _axis, const Vector& _point)
+CGVector3D Rotate(float _angle, const CGVector3D& _axis, const CGVector3D& _point)
 {
     Quaternion q(cos(_angle/2), _axis * sin(_angle/2));
-    Vector result;
+    CGVector3D result;
     q.ApplyRotation(&result, _point);
 
     return result;
@@ -596,17 +596,17 @@ bool Geodetic2D::EqualsEpsilon(Geodetic2D& _other, double _epsilon)
 Ellipse::Ellipse(const float _x, const float _y, const float _z)
 {
     // Ctor
-    radii[RadiusType::R] = new Vector(_x, _y, _z);
-    radii[RadiusType::R_SQUARED] = new Vector(
+    radii[RadiusType::R] = new CGVector3D(_x, _y, _z);
+    radii[RadiusType::R_SQUARED] = new CGVector3D(
         _x * _x, 
         _y * _y, 
         _z * _z);
-    radii[RadiusType::R_FOURTH] = new Vector(
+    radii[RadiusType::R_FOURTH] = new CGVector3D(
         radii[RadiusType::R_SQUARED]->GetX() * radii[RadiusType::R_SQUARED]->GetX(), 
         radii[RadiusType::R_SQUARED]->GetY() * radii[RadiusType::R_SQUARED]->GetY(), 
         radii[RadiusType::R_SQUARED]->GetZ() * radii[RadiusType::R_SQUARED]->GetZ()
         );
-    radii[RadiusType::ONE_OVER_R_SQUARED] = new Vector(
+    radii[RadiusType::ONE_OVER_R_SQUARED] = new CGVector3D(
         1.0f / radii[RadiusType::R_SQUARED]->GetX(), 
         1.0f / radii[RadiusType::R_SQUARED]->GetX(), 
         1.0f / radii[RadiusType::R_SQUARED]->GetX()
@@ -618,50 +618,50 @@ Ellipse::Ellipse(const float _x, const float _y, const float _z)
 
 // Compute a curve (path) on an ellipse given start and stop points and a granularity
 // which is an angle between two adjecent points (appoximations)
-Vector**    Ellipse::ComputeCurve(Vector& _start, Vector& _stop, float _granularity, unsigned int& _n_out)
+CGVector3D**    Ellipse::ComputeCurve(CGVector3D& _start, CGVector3D& _stop, float _granularity, unsigned int& _n_out)
 {
     // there MUST ecist a granularity
     assert(_granularity > 0.0f);
 
     // method to compute a list of durves
-    Vector normal; 
-    normal = Vector::Normalize(_start.Cross(_stop));
+    CGVector3D normal; 
+    normal = CGVector3D::Normalize(_start.Cross(_stop));
     // calsulate angle between _start and _stop
     float theta = _start.AngleBetween(_stop);
 
     int n = std::fmaxf((int)(theta / _granularity) - 1.0f, 0.0f);
     int listSize = 2 + n;
-    Vector** positions = new Vector*[listSize];
-    positions[0] = new Vector(_start.GetX(), _start.GetY(), _start.GetZ());
+    CGVector3D** positions = new CGVector3D*[listSize];
+    positions[0] = new CGVector3D(_start.GetX(), _start.GetY(), _start.GetZ());
 
     for (int i = 1; i < (listSize - 1); i++)
     {
         float phi = (i * _granularity);
-        Vector rotation = _start.RotateAroundAxis(normal, phi);
-        Vector scaledVector = ScaleToGeocentricSurface( rotation );
-        positions[i] = new Vector(scaledVector);
+        CGVector3D rotation = _start.RotateAroundAxis(normal, phi);
+        CGVector3D scaledCGVector3D = ScaleToGeocentricSurface( rotation );
+        positions[i] = new CGVector3D(scaledCGVector3D);
     }
 
-    positions[listSize-1] = new Vector(_stop.GetX(), _stop.GetY(), _stop.GetZ());
+    positions[listSize-1] = new CGVector3D(_stop.GetX(), _stop.GetY(), _stop.GetZ());
     return positions;
 }
 
 
 
-Vector      Ellipse::GeodeticSurfNormal(Vector& _v)
+CGVector3D      Ellipse::GeodeticSurfNormal(CGVector3D& _v)
 {
     // Get a geodesic surface normal
-    return Vector::Normalize(_v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])));
+    return CGVector3D::Normalize(_v.MultiplyComponents(*(radii[RadiusType::ONE_OVER_R_SQUARED])));
 }
 
 
 
-Vector      Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
+CGVector3D      Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
 {
     // Like the previous method but takes in as parameter a geodetic3D
     float cosLatitude = std::cos(_geodetic.Latitude());
 
-    return Vector(
+    return CGVector3D(
         cosLatitude * std::cos(_geodetic.Longitude()),
         cosLatitude * std::sin(_geodetic.Longitude()),
         std::sin(_geodetic.Latitude())
@@ -671,8 +671,8 @@ Vector      Ellipse::GeodeticSurfNormal(Geodetic3D& _geodetic)
 
 
 // Solve an ellipse intersection equation ax^2 + bx + c = 0
-// Returns vector. Third component indicates the number of solutions
-Vector      Ellipse::Intersections(Vector& _origin, Vector& _direction)
+// Returns CGVector3D. Third component indicates the number of solutions
+CGVector3D      Ellipse::Intersections(CGVector3D& _origin, CGVector3D& _direction)
 {
     _direction.NormalizeThis();
 
@@ -694,17 +694,17 @@ Vector      Ellipse::Intersections(Vector& _origin, Vector& _direction)
     // Now solve ax^2 + bx + c = 0
     float discriminant = b * b - 4 * a * c;
 
-    Vector(0.0f, 0.0f, 0.0f);
+    CGVector3D(0.0f, 0.0f, 0.0f);
 
     if (discriminant < 0.0f)
     {
         // no intersections
-        return Vector(0.0f, 0.0f, 0.0f);
+        return CGVector3D(0.0f, 0.0f, 0.0f);
     }
     else if (discriminant == 0.0f)
     {
         // one intersection at a tangent point
-        Vector(-0.5f * b / a, 0.0f, 1.0f);
+        CGVector3D(-0.5f * b / a, 0.0f, 1.0f);
     }
     float t = -0.5 * (b + (b > 0.0f ? 1.0f : -1.0f) * std::sqrt(discriminant));
     float root1 = t / a;
@@ -713,10 +713,10 @@ Vector      Ellipse::Intersections(Vector& _origin, Vector& _direction)
     // Two intersections - return the smallest intersection as the first component
     if(root1 < root2)
     {
-        return Vector(root1, root2, 2.0f);
+        return CGVector3D(root1, root2, 2.0f);
     }
     
-    return Vector(root2, root1, 2.0f);
+    return CGVector3D(root2, root1, 2.0f);
 }
 
 
@@ -745,35 +745,35 @@ float       Ellipse::MaximumRadius()
 
 
 
-Vector      Ellipse::ToVector(Geodetic2D& _geodetic)
+CGVector3D      Ellipse::ToCGVector3D(Geodetic2D& _geodetic)
 {
     Geodetic3D gd((float)_geodetic.Latitude(), (float)_geodetic.Longitude(), 0.0f );
-    return ToVector(gd);
+    return ToCGVector3D(gd);
 }
 
 
 
 // Convertor from Geodetic coordinate system to cartesian coordinates
-Vector      Ellipse::ToVector(Geodetic3D& _geodetic)
+CGVector3D      Ellipse::ToCGVector3D(Geodetic3D& _geodetic)
 {
-    Vector n = GeodeticSurfNormal(_geodetic);
-    Vector k = radii[RadiusType::R_SQUARED]->MultiplyComponents(n);
+    CGVector3D n = GeodeticSurfNormal(_geodetic);
+    CGVector3D k = radii[RadiusType::R_SQUARED]->MultiplyComponents(n);
     double gamma = std::sqrt(
         (k.GetX() * n.GetX()) +
         (k.GetY() * n.GetY()) +
         (k.GetZ() * n.GetZ())
         );
  
-    Vector rSurface = Vector(k / gamma);
+    CGVector3D rSurface = CGVector3D(k / gamma);
 
-    return Vector (rSurface + (n * _geodetic.Height())) ;
+    return CGVector3D (rSurface + (n * _geodetic.Height())) ;
 }
 
 
 
-Geodetic2D  Ellipse::ToGeodetic2D(Vector& _positions)
+Geodetic2D  Ellipse::ToGeodetic2D(CGVector3D& _positions)
 {
-    Vector n = GeodeticSurfNormal(_positions);
+    CGVector3D n = GeodeticSurfNormal(_positions);
     Geodetic2D gd(
                       (float) std::atan2 (n.GetY(), n.GetX()),
                       (float) std::asin(n.GetZ() / n.Magnitude())
@@ -783,10 +783,10 @@ Geodetic2D  Ellipse::ToGeodetic2D(Vector& _positions)
 
 
 
-Geodetic3D  Ellipse::ToGeodetic3D(Vector& _position)
+Geodetic3D  Ellipse::ToGeodetic3D(CGVector3D& _position)
 {
-    Vector p = ScaleToGeodeticSurface(_position);
-    Vector h = _position - p;
+    CGVector3D p = ScaleToGeodeticSurface(_position);
+    CGVector3D h = _position - p;
     float height = sgn<float>(h.operator*(_position)) * h.Magnitude(); 
     Geodetic2D gd2d;
     gd2d = ToGeodetic2D(p);
@@ -796,7 +796,7 @@ Geodetic3D  Ellipse::ToGeodetic3D(Vector& _position)
 
 
 
-Vector      Ellipse::ScaleToGeodeticSurface(Vector _position)
+CGVector3D      Ellipse::ScaleToGeodeticSurface(CGVector3D _position)
 {
     float beta = 1.0f / std::sqrt(
         (_position.GetX() * _position.GetX()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
@@ -804,7 +804,7 @@ Vector      Ellipse::ScaleToGeodeticSurface(Vector _position)
         (_position.GetZ() * _position.GetZ()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ()
     );
     
-    float n = Vector(
+    float n = CGVector3D(
         beta*_position.GetX()*radii[RadiusType::ONE_OVER_R_SQUARED]->GetX(),
         beta*_position.GetY()*radii[RadiusType::ONE_OVER_R_SQUARED]->GetY(),
         beta*_position.GetZ()*radii[RadiusType::ONE_OVER_R_SQUARED]->GetZ()
@@ -854,13 +854,13 @@ Vector      Ellipse::ScaleToGeodeticSurface(Vector _position)
     }
     while (std::abs(s) > 1e-10);
 
-    return Vector( _position.GetX() / da, _position.GetY() / db, _position.GetZ() / dc );
+    return CGVector3D( _position.GetX() / da, _position.GetY() / db, _position.GetZ() / dc );
     
 }
 
 
 
-Vector      Ellipse::ScaleToGeocentricSurface(Vector& _position)
+CGVector3D      Ellipse::ScaleToGeocentricSurface(CGVector3D& _position)
 {
     float beta = 1.0f / std::sqrt(
         (_position.GetX() * _position.GetX()) * radii[RadiusType::ONE_OVER_R_SQUARED]->GetX() +
