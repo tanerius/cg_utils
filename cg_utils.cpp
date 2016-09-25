@@ -837,6 +837,8 @@ Vector      Ellipse::ScaleToGeodeticSurface(Vector _position)
         float db3 = db * db2;
         float dc3 = dc * dc2;
 
+        
+
 
         
         s = x2 / (radii[RadiusType::R_SQUARED]->GetX() * da2) +

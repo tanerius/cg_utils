@@ -196,12 +196,11 @@ namespace CGutils {
     };
 
 
-
-
     Vector Rotate(float _angle, const Vector& _axis, const Vector& _point);
     
     
-    template <typename T> int sgn(T val) {
+    template <typename T> int sgn(T val) 
+    {
         return (T(0) < val) - (val < T(0));
     }
 
@@ -258,7 +257,8 @@ namespace CGutils {
         float   Height() const { return height; } 
 
         bool Equals(const Geodetic3D& _other) { return operator==(_other); }
-        inline bool operator==(const Geodetic3D& _c) const {
+        inline bool operator==(const Geodetic3D& _c) const 
+        {
             return ( (_c.latitude==latitude) && (_c.longitude==longitude) && (_c.height==height) );
         }
         inline bool operator!=(const Geodetic3D& _other) const { return !operator==(_other); }
@@ -318,10 +318,12 @@ namespace CGutils {
 
 
     private:
-        Vector *radii[4];
+        Vector*         radii[4];
     };
 
 
 }
+
+    
 
 #endif
